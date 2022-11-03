@@ -3,16 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5dbe89a0-192c-42ca-b3f6-196331dde6ef" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cn/qmso/wxPay/base/Pay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cn/qmso/wxPay/base/Pay.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cn/qmso/wxPay/v2/SeparateAccount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cn/qmso/wxPay/v2/SeparateAccount.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cn/qmso/wxPay/v2/WxPayV2.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cn/qmso/wxPay/v2/WxPayV2.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0-sources.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0-sources.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0-sources.jar.asc" beforeDir="false" afterPath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0-sources.jar.asc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0.jar.asc" beforeDir="false" afterPath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0.jar.asc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0.pom" beforeDir="false" afterPath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0.pom" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0.pom.asc" beforeDir="false" afterPath="$PROJECT_DIR$/target/payment-spring-boot-starter-1.0.0.pom.asc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +68,7 @@
       <option name="presentableId" value="Default" />
       <updated>1666768009536</updated>
       <workItem from="1666768014631" duration="10751000" />
-      <workItem from="1667367698386" duration="30456000" />
+      <workItem from="1667367698386" duration="30744000" />
     </task>
     <servers />
   </component>
