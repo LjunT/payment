@@ -45,8 +45,8 @@ public class SeparateAccount extends PayV2 {
      * @param receivers         请求参数实体集合
      * @param key               ApiV2秘钥
      * @param certPath          p12证书地址
-     * @return
-     * @throws Exception
+     * @return 请求结果
+     * @throws Exception 异常
      */
     public static Map<String, String> separateAccount(String url, SeparateAccountBo separateAccountBo, List<Receivers> receivers, String key, String certPath) throws Exception {
         String jsonStr = JSONUtil.toJsonStr(separateAccountBo);
@@ -64,8 +64,8 @@ public class SeparateAccount extends PayV2 {
      * @param addSeparateAccountBo 请求参数实体
      * @param receiver             请求参数实体
      * @param key                  ApiV2秘钥
-     * @return
-     * @throws Exception
+     * @return 请求结果
+     * @throws Exception 异常
      */
     public static Map<String, String> addSeparateAccount(AddSeparateAccountBo addSeparateAccountBo, Receiver receiver, String key) throws Exception {
         String jsonStr = JSONUtil.toJsonStr(addSeparateAccountBo);
@@ -83,8 +83,8 @@ public class SeparateAccount extends PayV2 {
      * @param deleteSeparateAccountBo 请求参数实体
      * @param receiver                请求参数实体
      * @param key                     ApiV2秘钥
-     * @return
-     * @throws Exception
+     * @return 请求结果
+     * @throws Exception 欧昌
      */
     public static Map<String, String> deleteSeparateAccount(DeleteSeparateAccountBo deleteSeparateAccountBo, Receiver receiver, String key) throws Exception {
         String jsonStr = JSONUtil.toJsonStr(deleteSeparateAccountBo);
@@ -101,8 +101,8 @@ public class SeparateAccount extends PayV2 {
      *
      * @param selectSeparateAccountBo 请求参数实体
      * @param key                     ApiV2秘钥
-     * @return
-     * @throws Exception
+     * @return 请求结果
+     * @throws Exception 异常
      */
     public static Map<String, String> selectSeparateAccount(SelectSeparateAccountBo selectSeparateAccountBo, String key) throws Exception {
         String jsonStr = JSONUtil.toJsonStr(selectSeparateAccountBo);
@@ -121,8 +121,8 @@ public class SeparateAccount extends PayV2 {
      * @param successSeparateAccountBo 请求参数实体
      * @param key                      ApiV2秘钥
      * @param certPath                 p12证书地址
-     * @return
-     * @throws Exception
+     * @return 请求结果
+     * @throws Exception 异常
      */
     public static Map<String, String> successSeparateAccount(SuccessSeparateAccountBo successSeparateAccountBo, String key, String certPath) throws Exception {
         String jsonStr = JSONUtil.toJsonStr(successSeparateAccountBo);
@@ -138,8 +138,8 @@ public class SeparateAccount extends PayV2 {
      *
      * @param selectNotSeparateAccountBo 参数实体
      * @param key                        ApiV2秘钥
-     * @return
-     * @throws Exception
+     * @return 请求结果
+     * @throws Exception 异常
      */
     public static Map<String, String> selectNotSeparateAccount(SelectNotSeparateAccountBo selectNotSeparateAccountBo, String key) throws Exception {
         String jsonStr = JSONUtil.toJsonStr(selectNotSeparateAccountBo);

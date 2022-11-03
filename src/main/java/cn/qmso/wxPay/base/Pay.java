@@ -68,7 +68,7 @@ public class Pay  {
      * @param privateKeyFilePath 私钥路径
      * @param body               请求体
      * @return 组装请求的数据
-     * @throws Exception
+     * @throws Exception 异常
      */
     protected static String getToken(String method, HttpUrl url, String mercId, String serial_no, String privateKeyFilePath, String body) throws Exception {
         String nonceStr = UUID.randomUUID().toString().replace("-", "");

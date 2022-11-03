@@ -37,7 +37,7 @@ public class WxPayV2 extends PayV2 {
      * 返回正确的预支付交易会话标识后再按Native、JSAPI、APP等不同场景生成交易串调起支付。
      * @param placeOrderBo 请求参数实体
      * @param sceneInfo    请求参数实体
-     * @throws Exception
+     * @throws Exception 异常
      */
     public String placeOrder(PlaceOrderBo placeOrderBo, SceneInfo sceneInfo) throws Exception {
         return placeOrder(placeOrderBo, sceneInfo,defaultWxPayV2Config);
