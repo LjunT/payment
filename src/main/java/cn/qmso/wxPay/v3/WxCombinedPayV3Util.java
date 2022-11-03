@@ -17,10 +17,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import cn.qmso.wxPay.pojo.v2.only.close.CloseOrderBo;
-import cn.qmso.wxPay.pojo.v3.combined.bo.placeorder.CombinedPayBo;
-import cn.qmso.wxPay.pojo.v3.combined.vo.notify.CombinedNotfyVo;
-import cn.qmso.wxPay.pojo.v3.combined.vo.selectorder.SelectComBinedOrderVo;
+import cn.qmso.wxPay.v2.pojo.only.close.CloseOrderBo;
+import cn.qmso.wxPay.v3.pojo.combined.bo.placeorder.CombinedPayBo;
+import cn.qmso.wxPay.v3.pojo.combined.vo.notify.CombinedNotfyVo;
+import cn.qmso.wxPay.v3.pojo.combined.vo.selectorder.SelectComBinedOrderVo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

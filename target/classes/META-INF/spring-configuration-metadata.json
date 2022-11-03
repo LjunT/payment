@@ -1,0 +1,48 @@
+{
+  "groups": [
+    {
+      "name": "payment.wxpay.v2",
+      "type": "cn.qmso.wxPay.v2.config.WxPayV2Config",
+      "sourceType": "cn.qmso.wxPay.v2.config.WxPayV2Config"
+    }
+  ],
+  "properties": [
+    {
+      "name": "payment.wxpay.v2.appid",
+      "type": "java.lang.String",
+      "description": "微信支付公众号appid",
+      "sourceType": "cn.qmso.wxPay.v2.config.WxPayV2Config"
+    },
+    {
+      "name": "payment.wxpay.v2.cert-path",
+      "type": "java.lang.String",
+      "description": "证书地址",
+      "sourceType": "cn.qmso.wxPay.v2.config.WxPayV2Config"
+    },
+    {
+      "name": "payment.wxpay.v2.key",
+      "type": "java.lang.String",
+      "description": "v2密钥",
+      "sourceType": "cn.qmso.wxPay.v2.config.WxPayV2Config"
+    },
+    {
+      "name": "payment.wxpay.v2.mch-id",
+      "type": "java.lang.String",
+      "description": "微信支付商户号",
+      "sourceType": "cn.qmso.wxPay.v2.config.WxPayV2Config"
+    },
+    {
+      "name": "payment.wxpay.v2.notify-url",
+      "type": "java.lang.String",
+      "description": "回调地址",
+      "sourceType": "cn.qmso.wxPay.v2.config.WxPayV2Config"
+    },
+    {
+      "name": "payment.wxpay.v2.sign-type",
+      "type": "java.lang.String",
+      "description": "加密方式",
+      "sourceType": "cn.qmso.wxPay.v2.config.WxPayV2Config"
+    }
+  ],
+  "hints": []
+}

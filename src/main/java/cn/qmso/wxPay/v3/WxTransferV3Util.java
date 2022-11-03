@@ -2,16 +2,16 @@ package cn.qmso.wxPay.v3;
 
 import cn.hutool.json.JSONUtil;
 import cn.qmso.wxPay.base.Pay;
-import cn.qmso.wxPay.pojo.v3.only.bo.transfer.TransferBo;
-import cn.qmso.wxPay.pojo.v3.only.bo.transfer.TransferDetailBo;
-import cn.qmso.wxPay.pojo.v3.only.vo.transfer.TransferVo;
+import cn.qmso.wxPay.v3.pojo.only.bo.transfer.TransferBo;
+import cn.qmso.wxPay.v3.pojo.only.bo.transfer.TransferDetailBo;
+import cn.qmso.wxPay.v3.pojo.only.vo.transfer.TransferVo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
-import cn.qmso.wxPay.pojo.v3.only.bo.transfer.batches.BatchesBo;
-import cn.qmso.wxPay.pojo.v3.only.vo.transfer.batches.BatchesVo;
+import cn.qmso.wxPay.v3.pojo.only.bo.transfer.batches.BatchesBo;
+import cn.qmso.wxPay.v3.pojo.only.vo.transfer.batches.BatchesVo;
 
 import java.security.cert.Certificate;
 import java.util.Map;

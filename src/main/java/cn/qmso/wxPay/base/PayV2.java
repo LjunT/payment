@@ -1,13 +1,3 @@
-/**
- * Copyright (C), 2020-2021,贵州铭明网络科技有限公司
- * FileName: PayV2
- * Author:   杨朝湖
- * Date:     2021/3/9 13:50
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
 package cn.qmso.wxPay.base;
 
 import cn.hutool.core.util.StrUtil;
@@ -30,7 +20,6 @@ import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import cn.qmso.wxPay.WxPayContent;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -56,14 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * 〈一句话功能简述〉<br>
- * 〈〉
- *
- * @author Gym
- * @create 2021/3/9
- * @since 1.0.0
- */
+
 public class PayV2 {
 
     /**
