@@ -1,6 +1,6 @@
 package cn.qmso.wxPay.base;
 
-import cn.hutool.core.util.StrUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -46,6 +46,9 @@ import java.util.Map;
 import java.util.Set;
 
 
+/**
+ * @author lijuntao
+ */
 public class PayV2 {
 
     /**
@@ -368,7 +371,7 @@ public class PayV2 {
     protected static void sendMessage(HttpServletResponse response, String plainText) throws Exception {
         Map<String, String> map = new HashMap<String, String>(12);
         // 需要通过证书序列号查找对应的证书，verifyNotify 中有验证证书的序列号
-        if (StrUtil.isNotEmpty(plainText)) {
+        if (StringUtils.isNotEmpty(plainText)) {
             response.setStatus(200);
             map.put("return_code", "SUCCESS");
             map.put("return_msg", "SUCCESS");

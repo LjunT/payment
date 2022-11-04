@@ -1,31 +1,13 @@
-/**
- * Copyright (C), 2020-2021,贵州铭明网络科技有限公司
- * FileName: DateTimeZoneUtil
- * Author:   杨朝湖
- * Date:     2021/3/5 10:50
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
 package cn.qmso.wxPay.base;
 
-import cn.hutool.core.util.StrUtil;
 import com.xkzhangsan.time.converter.DateTimeConverterUtil;
 import com.xkzhangsan.time.formatter.DateTimeFormatterUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
-/**
- * 〈一句话功能简述〉<br>
- * 〈〉
- *
- * @author Gym
- * @create 2021/3/5
- * @since 1.0.0
- */
 public class DateTimeZoneUtil implements Serializable {
     /**
      * 时间转 TimeZone
@@ -64,7 +46,7 @@ public class DateTimeZoneUtil implements Serializable {
      */
     public static String timeZoneDateToStr(String str) throws Exception {
         String time;
-        if (StrUtil.isBlank(str)) {
+        if (StringUtils.isBlank(str)) {
             throw new Exception("str is not null");
         }
         ZonedDateTime zonedDateTime = DateTimeFormatterUtil.parseToZonedDateTime(str, DateTimeFormatterUtil.YYYY_MM_DD_T_HH_MM_SS_XXX_FMT);

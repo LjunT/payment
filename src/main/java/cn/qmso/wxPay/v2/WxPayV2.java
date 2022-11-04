@@ -1,6 +1,5 @@
 package cn.qmso.wxPay.v2;
 
-import cn.hutool.json.JSONUtil;
 import cn.qmso.wxPay.base.PayV2;
 import cn.qmso.wxPay.v2.config.WxPayV2Config;
 import cn.qmso.wxPay.v2.pojo.WxPayV2Content;
@@ -12,6 +11,7 @@ import cn.qmso.wxPay.v2.pojo.only.placeorder.PlaceOrderBo;
 import cn.qmso.wxPay.v2.pojo.only.refund.RefundOrderBo;
 import cn.qmso.wxPay.v2.pojo.only.select.SelectOrderBo;
 import cn.qmso.wxPay.v3.pojo.only.vo.initiatepayment.WxPayResult;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -62,7 +62,7 @@ public class WxPayV2 extends PayV2 {
         map.put("nonce_str",WxPayUtil.generateNonceStr());
         map.put("sign_type",wxPayV2Config.getSign_type());
         if (sceneInfo != null) {
-            map.put("scene_info", JSONUtil.toJsonStr(sceneInfo));
+            map.put("scene_info", JSONObject.toJSONString(sceneInfo));
         }
         String signedXml = generateSignedXml(map, wxPayV2Config.getKey(), wxPayV2Config.getSign_type());
         Map<String, String> stringStringMap = notCarryCertificateRequestPost(wxPayV2Config.getMch_id(),

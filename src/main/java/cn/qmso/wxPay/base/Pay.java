@@ -1,10 +1,7 @@
 package cn.qmso.wxPay.base;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.ContentType;
-import cn.hutool.json.JSONUtil;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import okhttp3.HttpUrl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -13,6 +10,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -43,14 +41,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * 〈一句话功能简述〉<br>
- * 〈〉
- *
- * @author Gym
- * @create 2021/3/4
- * @since 1.0.0
- */
+
 public class Pay  {
 
     private static final String charset = "UTF-8";
@@ -130,7 +121,7 @@ public class Pay  {
      * @return
      * @throws Exception
      */
-    protected static JSONObject getCertificates(String url_prex, String url, String mchid, String serial_no, String privateKeyFilePath,String apiV3Key) throws Exception {
+    protected static JSONObject getCertificates(String url_prex, String url, String mchid, String serial_no, String privateKeyFilePath, String apiV3Key) throws Exception {
         JSONObject body = null;
         //创建httpclient对象
         CloseableHttpClient client = HttpClients.createDefault();
@@ -151,7 +142,7 @@ public class Pay  {
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             //按指定编码转换结果实体为String类型
-            body = JSONObject.fromObject(EntityUtils.toString(entity, charset));
+            body = JSONObject.parseObject(EntityUtils.toString(entity, charset));
         }
         EntityUtils.consume(entity);
         //释放链接
@@ -163,7 +154,7 @@ public class Pay  {
         JSONObject certificates = getCertificates(url_prex, url, mchid, serial_no, privateKeyFilePath, apiV3Key);
         JSONArray data = certificates.getJSONArray("data");
         for (Object datum : data) {
-            JSONObject jsonObject = JSONObject.fromObject(datum);
+            JSONObject jsonObject = JSONObject.parseObject(datum.toString());
             JSONObject encryptCertificate = jsonObject.getJSONObject("encrypt_certificate");
             String publicKey = decryptResponseBody(apiV3Key, encryptCertificate.getString("associated_data"), encryptCertificate.getString("nonce"), encryptCertificate.getString("ciphertext"));
             // 下面是刷新方法 refreshCertificate  的核心代码
@@ -307,11 +298,11 @@ public class Pay  {
      */
     protected static String verifyNotify(String body, String key) throws Exception {
         // 获取平台证书序列号
-        cn.hutool.json.JSONObject resultObject = JSONUtil.parseObj(body);
-        cn.hutool.json.JSONObject resource = resultObject.getJSONObject("resource");
-        String cipherText = resource.getStr("ciphertext");
-        String nonceStr = resource.getStr("nonce");
-        String associatedData = resource.getStr("associated_data");
+        JSONObject resultObject = JSONObject.parseObject(body);
+        JSONObject resource = resultObject.getJSONObject("resource");
+        String cipherText = resource.getString("ciphertext");
+        String nonceStr = resource.getString("nonce");
+        String associatedData = resource.getString("associated_data");
         AesUtil aesUtil = new AesUtil(key.getBytes(StandardCharsets.UTF_8));
         // 密文解密
         return aesUtil.decryptToString(
@@ -398,7 +389,7 @@ public class Pay  {
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             //按指定编码转换结果实体为String类型
-            body = JSONObject.fromObject(EntityUtils.toString(entity, charset));
+            body = JSONObject.parseObject(EntityUtils.toString(entity, charset));
         }
         EntityUtils.consume(entity);
         //释放链接
@@ -418,7 +409,7 @@ public class Pay  {
      * @return
      * @throws Exception
      */
-    protected static Object postRequest(String url_prex, String url, String mchid, String serial_no,String platformSerialNo, String privateKeyFilePath, String jsonStr) throws Exception {
+    protected static String postRequest(String url_prex, String url, String mchid, String serial_no,String platformSerialNo, String privateKeyFilePath, String jsonStr) throws Exception {
         String body = "";
         //创建httpclient对象
         CloseableHttpClient client = HttpClients.createDefault();
@@ -464,7 +455,7 @@ public class Pay  {
     protected static void sendMessage(HttpServletResponse response, String plainText) throws Exception {
         Map<String, String> map = new HashMap<>(12);
         // 需要通过证书序列号查找对应的证书，verifyNotify 中有验证证书的序列号
-        if (StrUtil.isNotEmpty(plainText)) {
+        if (StringUtils.isNotEmpty(plainText)) {
             response.setStatus(200);
             map.put("code", "SUCCESS");
             map.put("message", "SUCCESS");
@@ -473,8 +464,8 @@ public class Pay  {
             map.put("code", "ERROR");
             map.put("message", "签名错误");
         }
-        response.setHeader("Content-type", ContentType.JSON.toString());
-        response.getOutputStream().write(JSONUtil.toJsonStr(map).getBytes(StandardCharsets.UTF_8));
+        response.setHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+        response.getOutputStream().write(JSONObject.toJSONString(map).getBytes(StandardCharsets.UTF_8));
         response.flushBuffer();
     }
 

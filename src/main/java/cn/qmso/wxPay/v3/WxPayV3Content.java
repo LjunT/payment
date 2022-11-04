@@ -31,6 +31,37 @@ public class WxPayV3Content {
     public static final String V3_NATIVE_PAY_URL = "v3/pay/transactions/native";
 
     /**
+     * 微信支付订单号查询地址
+     */
+    public static final String V3_QUERY_TRANSACTIONS = "/v3/pay/transactions/id/";
+    public static final String V3_QUERY_OUT_TRADE_NO = "/v3/pay/transactions/out-trade-no/";
+
+    /**
+     * 关闭订单接口
+     */
+    public static final String V3_CLOSE_ORDER_URL = "/v3/pay/transactions/out-trade-no/%s/close";
+
+    /**
+     * 申请退款地址
+     */
+    public static final String V3_REFUND_URL = "/v3/refund/domestic/refunds";
+
+    /**
+     * 查询退款订单
+     */
+    public static final String V3_SELECT_REFUND_URL = "/v3/refund/domestic/refunds/%s";
+
+    /**
+     * 申请交易账单地址
+     */
+    public static final String V3_TRADEBILL_URL = "/v3/bill/tradebill";
+
+    /**
+     * 申请资金账单地址
+     */
+    public static final String V3_FUNDFLOWBILL_URL = "/v3/bill/fundflowbill";
+
+    /**
      * 获取微信平台证书地址
      */
     public static final String V3_CERTIFICATES_URL = "v3/certificates";
@@ -44,27 +75,6 @@ public class WxPayV3Content {
      * 商家转账到零钱订单查询地址
      */
     public static final String V3_TRANSFER_SELECT = "v3/transfer/batches/batch-id/%s";
-
-    /**
-     * 微信订单查询地址
-     */
-    public static final String V2ORDER_QUERY_URL = URL_PRE + "pay/orderquery";
-
-    /**
-     * 微信订单关闭地址
-     */
-    public static final String V2ORDER_CLOSE_URL = URL_PRE + "pay/closeorder";
-
-    /**
-     * 微信订单退款地址
-     */
-    public static final String V2ORDER_REFUND_URL = URL_PRE + "secapi/pay/refund";
-
-    /**
-     * 微信订单退款地址
-     */
-    public static final String V2QUERY_REFUND_ORDER_URL = URL_PRE + "pay/refundquery";
-
 
     /**
      * 微信支付成功字符串

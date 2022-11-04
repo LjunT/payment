@@ -25,30 +25,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class WxPayRequestBo {
     /**
-     * 公众号ID
-     */
-    private String appid;
-    /**
-     * 服务商公众号ID
-     */
-    private String sp_appid;
-    /**
-     * 直连商户号
-     */
-    private String mchid;
-    /**
-     * 服务商户号
-     */
-    private String sp_mchid;
-    /**
-     * 子商户公众号ID
-     */
-    private String sub_appid;
-    /**
-     * 子商户号
-     */
-    private String sub_mchid;
-    /**
      * 商品描述
      */
     private String description;

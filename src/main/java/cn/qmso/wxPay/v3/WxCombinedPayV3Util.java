@@ -1,20 +1,9 @@
-/**
- * Copyright (C), 2020-2021,贵州铭明网络科技有限公司
- * FileName: WxComBinedPayV3Util
- * Author:   杨朝湖
- * Date:     2021/3/4 13:50
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
 package cn.qmso.wxPay.v3;
 
-import cn.hutool.json.JSONUtil;
 import cn.qmso.wxPay.base.Pay;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cn.qmso.wxPay.v2.pojo.only.close.CloseOrderBo;
@@ -25,13 +14,10 @@ import cn.qmso.wxPay.v3.pojo.combined.vo.selectorder.SelectComBinedOrderVo;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 /**
- * 〈一句话功能简述〉<br>
- * 〈微信支付V3版本合单支付〉
- *
- * @author Gym
- * @create 2021/3/4
- * @since 1.0.0
+ * @author lijuntao
+ * 合单支付
  */
 public class WxCombinedPayV3Util extends Pay {
     private static final Logger logger = LoggerFactory.getLogger(WxCombinedPayV3Util.class);
@@ -48,15 +34,15 @@ public class WxCombinedPayV3Util extends Pay {
      * @throws Exception
      */
     public static String v3CombinedPayGet(String url, CombinedPayBo combinedPayBo, String mchId, String serialNo, String privateKeyFilePath) throws Exception {
-        Object body = postRequest(WxPayV3Content.URL_PRE, url, mchId, serialNo,null, privateKeyFilePath, JSONUtil.toJsonStr(combinedPayBo));
+        Object body = postRequest(WxPayV3Content.URL_PRE, url, mchId, serialNo,null, privateKeyFilePath, JSONObject.toJSONString(combinedPayBo));
         switch (url) {
             case "v3/combine-transactions/app":
             case "v3/combine-transactions/jsapi":
-                return JSONObject.fromObject(body).getString("prepay_id");
+                return JSONObject.parseObject(body.toString()).getString("prepay_id");
             case "v3/combine-transactions/native":
-                return JSONObject.fromObject(body).getString("code_url");
+                return JSONObject.parseObject(body.toString()).getString("code_url");
             case "v3/combine-transactions/h5":
-                return JSONObject.fromObject(body).getString("h5_url");
+                return JSONObject.parseObject(body.toString()).getString("h5_url");
             default:
                 return null;
         }
@@ -120,7 +106,7 @@ public class WxCombinedPayV3Util extends Pay {
      * @throws Exception
      */
     public static String closeCombinedOrder(String url, String mchid, String serial_no, String privateKeyFilePath, CloseOrderBo closeOrderBo) throws Exception {
-        Object body = postRequest(WxPayV3Content.URL_PRE, url, mchid, serial_no,null, privateKeyFilePath, JSONUtil.toJsonStr(closeOrderBo));
+        Object body = postRequest(WxPayV3Content.URL_PRE, url, mchid, serial_no,null, privateKeyFilePath, JSONObject.toJSONString(closeOrderBo));
         return body.toString();
     }
 

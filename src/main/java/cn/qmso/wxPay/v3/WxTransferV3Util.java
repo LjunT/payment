@@ -1,14 +1,13 @@
 package cn.qmso.wxPay.v3;
 
-import cn.hutool.json.JSONUtil;
 import cn.qmso.wxPay.base.Pay;
 import cn.qmso.wxPay.v3.pojo.only.bo.transfer.TransferBo;
 import cn.qmso.wxPay.v3.pojo.only.bo.transfer.TransferDetailBo;
 import cn.qmso.wxPay.v3.pojo.only.vo.transfer.TransferVo;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import cn.qmso.wxPay.v3.pojo.only.bo.transfer.batches.BatchesBo;
 import cn.qmso.wxPay.v3.pojo.only.vo.transfer.batches.BatchesVo;
@@ -77,11 +76,11 @@ public class WxTransferV3Util extends Pay {
 
         }
 
-        Object body = postRequest(WxPayV3Content.URL_PRE , WxPayV3Content.V3_TRANSFER_BATCHES, mchid, serial_no,platformSerialNo, privateKeyFilePath, JSONUtil.toJsonStr(transferBo));
+        String body = postRequest(WxPayV3Content.URL_PRE , WxPayV3Content.V3_TRANSFER_BATCHES, mchid, serial_no,platformSerialNo, privateKeyFilePath, JSONObject.toJSONString(transferBo));
         TransferVo transferVo = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
-            transferVo = mapper.readValue(body.toString(),
+            transferVo = mapper.readValue(body,
                     new TypeReference<TransferVo>() {
                     });
         } catch (Exception e) {
@@ -89,7 +88,7 @@ public class WxTransferV3Util extends Pay {
         }
         if (transferVo == null){
             transferVo = new TransferVo();
-            transferVo.setMessage(JSONObject.fromObject(body).getString("message"));
+            transferVo.setMessage(JSONObject.parseObject(body).getString("message"));
         }
         return transferVo;
     }
