@@ -1,6 +1,5 @@
 package cn.qmso.wxPay.v3.config;
 
-import cn.qmso.wxPay.base.WxPayContent;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

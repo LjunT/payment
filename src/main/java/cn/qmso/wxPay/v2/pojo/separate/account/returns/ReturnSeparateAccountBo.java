@@ -1,26 +1,9 @@
-/**
- * Copyright (C), 2020-2021,贵州铭明网络科技有限公司
- * FileName: ReturnSeparateAccountBo
- * Author:   杨朝湖
- * Date:     2021/3/10 15:39
- * Description:
- * History:
- * <author>          <time>          <version>          <desc>
- * 作者姓名           修改时间           版本号              描述
- */
 package cn.qmso.wxPay.v2.pojo.separate.account.returns;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-/**
- * 〈一句话功能简述〉<br>
- * 〈〉
- *
- * @author Gym
- * @create 2021/3/10
- * @since 1.0.0
- */
+
 @Data
 @Accessors(chain = true)
 public class ReturnSeparateAccountBo {

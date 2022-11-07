@@ -18,13 +18,9 @@ import com.alibaba.fastjson.JSONObject;
 import java.util.List;
 import java.util.Map;
 
+
 /**
- * 〈一句话功能简述〉<br>
- * 〈分账相关的支付〉
- *
- * @author Gym
- * @create 2021/3/10
- * @since 1.0.0
+ * @author lijuntao
  */
 public class SeparateAccount extends PayV2 {
 
@@ -52,8 +48,7 @@ public class SeparateAccount extends PayV2 {
         Map<String, String> map = WxPayUtil.objectToMap(separateAccountBo);
         map.put("receivers", JSONObject.toJSONString(receivers));
         String signedXml = generateSignedXml(map, key, WxPayContent.SIGN_TYPE_MD5);
-        Map<String, String> stringStringMap = carryCertificateRequestPost(separateAccountBo.getMch_id(), certPath, url_prex + url, signedXml);
-        return stringStringMap;
+        return carryCertificateRequestPost(separateAccountBo.getMch_id(), certPath, url_prex + url, signedXml);
     }
 
     /**

@@ -42,6 +42,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
+/**
+ * @author lijuntao
+ */
 public class Pay  {
 
     private static final String charset = "UTF-8";

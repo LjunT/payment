@@ -90,7 +90,7 @@ public class WxPayV2 extends PayV2 {
      *
      * @param prepayId 微信下单返回的prepay_id
      * @return 返回参数直接返回
-     * @throws Exception
+     * @throws Exception 异常
      */
     public WxPayResult wxTuneUp(String prepayId) throws Exception {
         return wxTuneUp(prepayId,defaultWxPayV2Config);
@@ -101,7 +101,7 @@ public class WxPayV2 extends PayV2 {
      *
      * @param prepayId 微信下单返回的prepay_id
      * @return 返回参数直接返回
-     * @throws Exception
+     * @throws Exception 异常
      */
     public WxPayResult wxTuneUp(String prepayId, WxPayV2Config wxPayV2Config) throws Exception {
         if (wxPayV2Config == null){
@@ -162,8 +162,12 @@ public class WxPayV2 extends PayV2 {
             wxPayV2Config = defaultWxPayV2Config;
         }
         Map<String, String> map = WxPayUtil.objectToMap(selectOrderBo);
+        map.put("appid",wxPayV2Config.getAppid());
+        map.put("mch_id",wxPayV2Config.getMch_id());
+        map.put("nonce_str",WxPayUtil.generateNonceStr());
+        map.put("sign_type",wxPayV2Config.getSign_type());
         String signedXml = generateSignedXml(map, wxPayV2Config.getKey(),wxPayV2Config.getSign_type());
-        return notCarryCertificateRequestPost(selectOrderBo.getMch_id(), WxPayV2Content.V2ORDER_QUERY_URL, signedXml);
+        return notCarryCertificateRequestPost(wxPayV2Config.getMch_id(), WxPayV2Content.V2ORDER_QUERY_URL, signedXml);
     }
 
 
