@@ -10,9 +10,11 @@ import cn.qmso.wxPay.v3.pojo.only.bo.placeorder.WxPayRequestBo;
 import cn.qmso.wxPay.v3.pojo.only.bo.refund.RefundBo;
 import cn.qmso.wxPay.v3.pojo.only.vo.notify.NotifyVo;
 import cn.qmso.wxPay.v3.pojo.only.vo.refund.RefundVo;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cn.qmso.wxPay.v3.pojo.only.vo.apply.fundbill.FundBillVo;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -64,11 +67,11 @@ public class WxPayV3 extends Pay {
         if (wxPayV3Config == null){
             wxPayV3Config = defaultWxPayV3Config;
         }
-        Map<String, String> map = WxPayUtil.objectToMap(wxPayRequestBo);
-        map.put("appid",wxPayV3Config.getAppid());
-        map.put("mchid",wxPayV3Config.getMch_id());
-        if (wxPayRequestBo.getNotify_url() == null){
-            map.put("notify_url",wxPayV3Config.getNotify_url());
+        JSONObject object = JSONObject.parseObject(JSONObject.toJSONString(wxPayRequestBo));
+        object.put("appid",wxPayV3Config.getAppid());
+        object.put("mchid",wxPayV3Config.getMch_id());
+        if (StringUtils.isEmpty(wxPayRequestBo.getNotify_url())){
+            object.put("notify_url",wxPayV3Config.getNotify_url());
         }
         Object body = postRequest(WxPayV3Content.URL_PRE,
                 url,
@@ -76,7 +79,7 @@ public class WxPayV3 extends Pay {
                 wxPayV3Config.getSerial_no(),
                 null,
                 wxPayV3Config.getPrivate_key_path(),
-                JSONObject.toJSONString(map));
+                JSONObject.toJSONString(object));
         switch (url) {
             case WxPayV3Content.V3_APP_PAY_URL:
             case WxPayV3Content.V3_JSAPI_PAY_URL:
@@ -107,7 +110,7 @@ public class WxPayV3 extends Pay {
      * @return 当前调起支付所需的参数
      * @throws Exception 异常
      */
-    public WxPayResult wxTuneUp(String prepayId,WxPayV3Config wxPayV3Config) throws Exception {
+    public WxPayResult wxTuneUp(String prepayId, WxPayV3Config wxPayV3Config) throws Exception {
         if (wxPayV3Config == null){
             wxPayV3Config = defaultWxPayV3Config;
         }
@@ -121,8 +124,12 @@ public class WxPayV3 extends Pay {
         list.add(packageStr);
         //加载签名
         String packageSign = sign(buildSignMessage(list).getBytes(), wxPayV3Config.getPrivate_key_path());
-        WxPayResult wxPayResult = new WxPayResult(wxPayV3Config.getAppid(), time, nonceStr, packageStr, "RSA", packageSign);
-        return wxPayResult;
+        return new WxPayResult(wxPayV3Config.getAppid(),
+                time,
+                nonceStr,
+                "prepay_id=" + prepayId,
+                "RSA",
+                packageSign);
     }
 
     /**

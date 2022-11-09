@@ -2,6 +2,7 @@ package cn.qmso;
 
 import cn.qmso.wxPay.v2.WxPayV2;
 import cn.qmso.wxPay.v2.config.WxPayV2Config;
+import cn.qmso.wxPay.v3.WxPayV3;
 import cn.qmso.wxPay.v3.config.WxPayV3Config;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,12 @@ public class PaymentAutoConfig {
     @ConditionalOnMissingBean(WxPayV2Config.class)
     public WxPayV2Config wxPayV2Config(){
         return new WxPayV2Config();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(WxPayV3.class)
+    public WxPayV3 wxPayV3(){
+        return new WxPayV3();
     }
 
     @Bean

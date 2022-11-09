@@ -12,6 +12,7 @@ import cn.qmso.wxPay.v2.pojo.only.refund.RefundOrderBo;
 import cn.qmso.wxPay.v2.pojo.only.select.SelectOrderBo;
 import cn.qmso.wxPay.v3.pojo.only.vo.initiatepayment.WxPayResult;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,13 +57,15 @@ public class WxPayV2 extends PayV2 {
             wxPayV2Config = defaultWxPayV2Config;
         }
         Map<String, String> map = WxPayUtil.objectToMap(placeOrderBo);
-        map.put("total_fee", placeOrderBo.getTotal_fee() + "");
         map.put("appid", wxPayV2Config.getAppid());
         map.put("mch_id", wxPayV2Config.getMch_id());
         map.put("nonce_str",WxPayUtil.generateNonceStr());
         map.put("sign_type",wxPayV2Config.getSign_type());
         if (sceneInfo != null) {
             map.put("scene_info", JSONObject.toJSONString(sceneInfo));
+        }
+        if (StringUtils.isEmpty(placeOrderBo.getNotify_url())){
+            map.put("notify_url",wxPayV2Config.getNotify_url());
         }
         String signedXml = generateSignedXml(map, wxPayV2Config.getKey(), wxPayV2Config.getSign_type());
         Map<String, String> stringStringMap = notCarryCertificateRequestPost(wxPayV2Config.getMch_id(),
@@ -117,7 +120,8 @@ public class WxPayV2 extends PayV2 {
         map.put("timeStamp", time);
         String sign = generateSignature(map, wxPayV2Config.getKey(), wxPayV2Config.getSign_type());
         return new WxPayResult(wxPayV2Config.getAppid(),
-                time,nonceStr ,
+                time,
+                nonceStr,
                 "prepay_id=" + prepayId,
                 wxPayV2Config.getSign_type(),
                 sign);

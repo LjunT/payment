@@ -125,4 +125,26 @@ public class WxPayUtil {
         return dataMap;
     }
 
+
+    /**
+     * 对象转map
+     * @param object 独享
+     * @return map
+     */
+    public static Map<String, Object> objectToMapObj(Object object){
+        Map<String,Object> dataMap = new HashMap<>();
+        Class<?> clazz = object.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            try {
+                field.setAccessible(true);
+                if (field.get(object) != null){
+                    dataMap.put(field.getName(),field.get(object));
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return dataMap;
+    }
+
 }
