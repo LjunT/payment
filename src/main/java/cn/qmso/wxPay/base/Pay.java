@@ -2,6 +2,7 @@ package cn.qmso.wxPay.base;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -45,6 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author lijuntao
  */
+@Slf4j
 public class Pay  {
 
     private static final String charset = "UTF-8";
@@ -168,7 +170,7 @@ public class Pay  {
             try {
                 certificate = cf.generateCertificate(inputStream);
             } catch (CertificateException e) {
-                e.printStackTrace();
+                log.error("刷新证书失败");
             }
             String responseSerialNo = jsonObject.getString("serial_no");
             // 清理HashMap
@@ -340,7 +342,7 @@ public class Pay  {
                 try {
                     br.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("流关闭失败");
                 }
             }
         }

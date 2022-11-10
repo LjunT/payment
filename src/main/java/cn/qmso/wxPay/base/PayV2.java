@@ -1,5 +1,6 @@
 package cn.qmso.wxPay.base;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -49,6 +50,7 @@ import java.util.Set;
 /**
  * @author lijuntao
  */
+@Slf4j
 public class PayV2 {
 
     /**
@@ -170,6 +172,7 @@ public class PayV2 {
             root.appendChild(filed);
         }
         TransformerFactory tf = TransformerFactory.newInstance();
+        tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         Transformer transformer = tf.newTransformer();
         DOMSource source = new DOMSource(document);
         transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
@@ -295,14 +298,23 @@ public class PayV2 {
     protected static Map<String, String> carryCertificateRequestPost(String mchId, String certPath, String url, String signedXml) throws Exception {
         // 证书
         char[] password = mchId.toCharArray();
-        InputStream certStream = new FileInputStream(certPath);
+        InputStream certStream = null;
+        try {
+            certStream = new FileInputStream(certPath);
+        }catch (Exception e){
+            log.error("证书加载失败");
+        }finally {
+            assert certStream != null;
+            certStream.close();
+        }
+
         KeyStore ks = KeyStore.getInstance("PKCS12");
         ks.load(certStream, password);
         // 实例化密钥库 & 初始化密钥工厂
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(ks, password);
         // 创建 SSLContext
-        SSLContext sslContext = SSLContext.getInstance("TLS");
+        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
         sslContext.init(kmf.getKeyManagers(), null, new SecureRandom());
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
                 new String[]{"TLSv1"}, null, new DefaultHostnameVerifier());
@@ -355,7 +367,7 @@ public class PayV2 {
                 try {
                     br.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("流关闭失败");
                 }
             }
         }

@@ -1,5 +1,7 @@
 package cn.qmso.wxPay.base;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.lang.reflect.Field;
@@ -14,6 +16,7 @@ import java.util.*;
  * @Description: 微信支付 工具类
  * @date Date : 2022年05月12日 9:56
  */
+@Slf4j
 public class WxPayUtil {
 
     /**
@@ -119,7 +122,7 @@ public class WxPayUtil {
                     dataMap.put(field.getName(),field.get(object).toString());
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                log.error("对象转换失败");
             }
         }
         return dataMap;
@@ -141,7 +144,7 @@ public class WxPayUtil {
                     dataMap.put(field.getName(),field.get(object));
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                log.error("对象转换失败");
             }
         }
         return dataMap;
