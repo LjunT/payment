@@ -1,5 +1,9 @@
-### 目前已集成
-* 微信支付v2支付
+# 使用文档
+`本项目由个人兴趣创建，目前或许有许多bug，未进行完全测试，也欢迎大家参与贡献，集成更多的支付方式`
+
+目前已集成：
+* 微信支付v2版本
+* 微信支付v3版本
 
 ## 使用方式：
 
@@ -7,10 +11,9 @@
     <dependency>
         <groupId>cn.qmso</groupId>
         <artifactId>payment-spring-boot-starter</artifactId>
-        <version>x.x.x</version>
+        <version>1.0.2</version>
     </dependency>
     
 ## 使用文档
-* 微信支付v2版本：[微信支付v2版本](https://github.com/LjunT/payment/wiki/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98v2%E6%8E%A5%E5%8F%A3%E4%BD%BF%E7%94%A8)
-
-
+#### [微信支付v2版本使用文档](https://github.com/LjunT/payment/wiki/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98v2%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
+#### [微信支付v3版本使用文档](https://github.com/LjunT/payment/wiki/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98v3%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
