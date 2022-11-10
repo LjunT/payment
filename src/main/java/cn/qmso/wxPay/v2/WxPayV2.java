@@ -53,9 +53,6 @@ public class WxPayV2 extends PayV2 {
      * @throws Exception 异常
      */
     public String placeOrder(PlaceOrderBo placeOrderBo, SceneInfo sceneInfo, WxPayV2Config wxPayV2Config) throws Exception {
-        if (wxPayV2Config == null){
-            wxPayV2Config = defaultWxPayV2Config;
-        }
         Map<String, String> map = WxPayUtil.objectToMap(placeOrderBo);
         map.put("appid", wxPayV2Config.getAppid());
         map.put("mch_id", wxPayV2Config.getMch_id());
@@ -107,9 +104,6 @@ public class WxPayV2 extends PayV2 {
      * @throws Exception 异常
      */
     public WxPayResult wxTuneUp(String prepayId, WxPayV2Config wxPayV2Config) throws Exception {
-        if (wxPayV2Config == null){
-            wxPayV2Config = defaultWxPayV2Config;
-        }
         String time = (System.currentTimeMillis() / 1000) + "";
         String nonceStr = WxPayUtil.generateNonceStr();
         Map<String, String> map = new HashMap<>();
@@ -134,7 +128,7 @@ public class WxPayV2 extends PayV2 {
      * @param response 响应信息
      * @return 支付的订单号
      */
-    public static Map<String, String> notify(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public Map<String, String> notify(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String result = readData(request);
         Map<String, String> stringStringMap = xmlToMap(result);
         //发送消息通知微信
@@ -162,9 +156,6 @@ public class WxPayV2 extends PayV2 {
      * @throws Exception 异常信息
      */
     public Map<String, String> selectOrder(SelectOrderBo selectOrderBo, WxPayV2Config wxPayV2Config) throws Exception {
-        if (wxPayV2Config == null){
-            wxPayV2Config = defaultWxPayV2Config;
-        }
         Map<String, String> map = WxPayUtil.objectToMap(selectOrderBo);
         map.put("appid",wxPayV2Config.getAppid());
         map.put("mch_id",wxPayV2Config.getMch_id());
@@ -221,9 +212,6 @@ public class WxPayV2 extends PayV2 {
      * @throws Exception 异常
      */
     public Map<String, String> refundOrder(RefundOrderBo refundOrderBo, WxPayV2Config wxPayV2Config) throws Exception {
-        if (wxPayV2Config == null){
-            wxPayV2Config = defaultWxPayV2Config;
-        }
         Map<String, String> map = WxPayUtil.objectToMap(refundOrderBo);
         map.put("appid",wxPayV2Config.getAppid());
         map.put("mch_id",wxPayV2Config.getMch_id());

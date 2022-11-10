@@ -18,7 +18,7 @@ public class TransferBo {
      * 申请商户号的appid或商户号绑定的appid（企业号corpid即为此appid）
      * 示例值：wxf636efh567hg4356
      */
-    private String appid;
+//    private String appid;
 
     /**
      * 商家批次单号

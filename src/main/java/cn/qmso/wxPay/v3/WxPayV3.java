@@ -1,7 +1,6 @@
 package cn.qmso.wxPay.v3;
 
 import cn.qmso.wxPay.base.Pay;
-import cn.qmso.wxPay.base.WxPayUtil;
 import cn.qmso.wxPay.v3.config.WxPayV3Config;
 import cn.qmso.wxPay.v3.pojo.only.bo.bill.FundflowbillBo;
 import cn.qmso.wxPay.v3.pojo.only.bo.bill.TradebillBo;
@@ -10,7 +9,6 @@ import cn.qmso.wxPay.v3.pojo.only.bo.placeorder.WxPayRequestBo;
 import cn.qmso.wxPay.v3.pojo.only.bo.refund.RefundBo;
 import cn.qmso.wxPay.v3.pojo.only.vo.notify.NotifyVo;
 import cn.qmso.wxPay.v3.pojo.only.vo.refund.RefundVo;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,9 +60,6 @@ public class WxPayV3 extends Pay {
      * @throws Exception
      */
     public String v3PayGet(String url, WxPayRequestBo wxPayRequestBo, WxPayV3Config wxPayV3Config) throws Exception {
-        if (wxPayV3Config == null){
-            wxPayV3Config = defaultWxPayV3Config;
-        }
         JSONObject object = JSONObject.parseObject(JSONObject.toJSONString(wxPayRequestBo));
         object.put("appid",wxPayV3Config.getAppid());
         object.put("mchid",wxPayV3Config.getMch_id());
@@ -109,9 +104,6 @@ public class WxPayV3 extends Pay {
      * @throws Exception 异常
      */
     public WxPayResult wxTuneUp(String prepayId, WxPayV3Config wxPayV3Config) throws Exception {
-        if (wxPayV3Config == null){
-            wxPayV3Config = defaultWxPayV3Config;
-        }
         String time = System.currentTimeMillis() / 1000 + "";
         String nonceStr = UUID.randomUUID().toString().replace("-", "");
         String packageStr = "prepay_id=" + prepayId;
@@ -150,9 +142,6 @@ public class WxPayV3 extends Pay {
      * @return 支付的订单号
      */
     public NotifyVo notify(HttpServletRequest request, HttpServletResponse response, WxPayV3Config wxPayV3Config) throws Exception {
-        if (wxPayV3Config == null){
-            wxPayV3Config = defaultWxPayV3Config;
-        }
         String result = readData(request);
         // 需要通过证书序列号查找对应的证书，verifyNotify 中有验证证书的序列号
         String plainText = verifyNotify(result, wxPayV3Config.getPrivate_key_path());
@@ -191,9 +180,6 @@ public class WxPayV3 extends Pay {
      * @throws Exception
      */
     public SelectOrderVo selectOrder(String transactionId,String out_trade_no,WxPayV3Config wxPayV3Config) throws Exception {
-        if (wxPayV3Config == null){
-            wxPayV3Config = defaultWxPayV3Config;
-        }
         String url = "";
         if (transactionId != null){
             url = WxPayV3Content.V3_QUERY_TRANSACTIONS + transactionId;
@@ -239,9 +225,6 @@ public class WxPayV3 extends Pay {
      * @throws Exception 异常
      */
     public String closeOrder(String out_trade_no, WxPayV3Config wxPayV3Config) throws Exception {
-        if (wxPayV3Config == null){
-            wxPayV3Config = defaultWxPayV3Config;
-        }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("mchid", wxPayV3Config.getMch_id());
         String url = String.format(WxPayV3Content.V3_CLOSE_ORDER_URL, out_trade_no);
@@ -273,9 +256,6 @@ public class WxPayV3 extends Pay {
      * @throws Exception 异常
      */
     public RefundVo refundOrder(RefundBo refundBo , WxPayV3Config wxPayV3Config) throws Exception {
-        if (wxPayV3Config == null){
-            wxPayV3Config = defaultWxPayV3Config;
-        }
         Object body = postRequest(WxPayV3Content.URL_PRE,
                 WxPayV3Content.V3_REFUND_URL,
                 wxPayV3Config.getMch_id(),
@@ -317,9 +297,6 @@ public class WxPayV3 extends Pay {
      * @throws Exception
      */
     public RefundOrderNotifyVo refundOrderNotify(HttpServletRequest request, HttpServletResponse response, WxPayV3Config wxPayV3Config) throws Exception {
-        if (wxPayV3Config == null){
-            wxPayV3Config = defaultWxPayV3Config;
-        }
         String result = readData(request);
         String plainText = verifyNotify(result, wxPayV3Config.getKey());
         //发送消息通知微信
@@ -354,9 +331,6 @@ public class WxPayV3 extends Pay {
      * @throws Exception
      */
     public SelectRefundVo selectRefundOrder(String out_refund_no,WxPayV3Config wxPayV3Config) throws Exception {
-        if (wxPayV3Config == null){
-            wxPayV3Config = defaultWxPayV3Config;
-        }
         String url = String.format(WxPayV3Content.V3_SELECT_REFUND_URL, out_refund_no);
         Object body = getRequest(WxPayV3Content.URL_PRE,
                 url,
@@ -394,9 +368,6 @@ public class WxPayV3 extends Pay {
      * @throws Exception
      */
     public TransactionBillVo applyTransactionBill(TradebillBo tradebillBo,WxPayV3Config wxPayV3Config) throws Exception {
-        if (wxPayV3Config == null){
-            wxPayV3Config = defaultWxPayV3Config;
-        }
         Object body = getRequest(WxPayV3Content.URL_PRE,
                 WxPayV3Content.V3_TRADEBILL_URL,
                 tradebillBo,
@@ -433,9 +404,6 @@ public class WxPayV3 extends Pay {
      * @throws Exception
      */
     public FundBillVo applyFundBill(FundflowbillBo fundflowbillBo,WxPayV3Config wxPayV3Config) throws Exception {
-        if (wxPayV3Config == null){
-            wxPayV3Config = defaultWxPayV3Config;
-        }
         Object body = getRequest(WxPayV3Content.URL_PRE,
                 WxPayV3Content.V3_FUNDFLOWBILL_URL,
                 fundflowbillBo,

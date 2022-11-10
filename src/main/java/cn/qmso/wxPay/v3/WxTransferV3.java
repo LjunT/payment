@@ -1,6 +1,7 @@
 package cn.qmso.wxPay.v3;
 
 import cn.qmso.wxPay.base.Pay;
+import cn.qmso.wxPay.v3.config.WxPayV3Config;
 import cn.qmso.wxPay.v3.pojo.only.bo.transfer.TransferBo;
 import cn.qmso.wxPay.v3.pojo.only.bo.transfer.TransferDetailBo;
 import cn.qmso.wxPay.v3.pojo.only.vo.transfer.TransferVo;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import cn.qmso.wxPay.v3.pojo.only.bo.transfer.batches.BatchesBo;
 import cn.qmso.wxPay.v3.pojo.only.vo.transfer.batches.BatchesVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.security.cert.Certificate;
 import java.util.Map;
@@ -22,20 +25,39 @@ import java.util.Map;
  * @date Date : 2022年07月26日 15:28
  */
 @Slf4j
-public class WxTransferV3Util extends Pay {
+@Component
+public class WxTransferV3 extends Pay {
+
+    @Autowired
+    private WxPayV3Config defaultWxPayV3Config;
 
 
     /**
      * 查询商家转账到零钱结果
      * @param batchesBo 查询参数
-     * @param mchid 商户号
-     * @param serial_no 证书序列号
-     * @param privateKeyFilePath 证书地址
+     * @param batchId 微信批次单号
      * @return 查询结果
      * @throws Exception 异常
      */
-    public static BatchesVo selectTransfer(BatchesBo batchesBo, String batchId, String mchid, String serial_no, String privateKeyFilePath) throws Exception {
-        Object body = getRequest(WxPayV3Content.URL_PRE, String.format(WxPayV3Content.V3_TRANSFER_SELECT,batchId),batchesBo, mchid, serial_no, privateKeyFilePath);
+    public BatchesVo selectTransfer(BatchesBo batchesBo, String batchId) throws Exception {
+        return selectTransfer(batchesBo,batchId,defaultWxPayV3Config);
+    }
+
+    /**
+     * 查询商家转账到零钱结果
+     * @param batchesBo 查询参数
+     * @param batchId 微信批次单号
+     * @param wxPayV3Config 配置信息
+     * @return 查询结果
+     * @throws Exception 异常
+     */
+    public BatchesVo selectTransfer(BatchesBo batchesBo, String batchId, WxPayV3Config wxPayV3Config) throws Exception {
+        Object body = getRequest(WxPayV3Content.URL_PRE,
+                String.format(WxPayV3Content.V3_TRANSFER_SELECT,batchId),
+                batchesBo,
+                wxPayV3Config.getMch_id(),
+                wxPayV3Config.getSerial_no(),
+                wxPayV3Config.getPrivate_key_path());
         BatchesVo batchesVo = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -48,19 +70,30 @@ public class WxTransferV3Util extends Pay {
         return batchesVo;
     }
 
+    /**
+     * 发起商家转账到零钱
+     * @param transferBo 转账信息
+     * @return 转账信息
+     * @throws Exception 异常
+     */
+    public TransferVo transfer(TransferBo transferBo) throws Exception {
+        return transfer(transferBo,defaultWxPayV3Config);
+    }
 
     /**
      * 发起商家转账到零钱
      * @param transferBo 转账信息
-     * @param mchid 商户号
-     * @param serial_no api证书序列号
-     * @param privateKeyFilePath pem证书地址
-     * @param v3Key v3key
+     * @param wxPayV3Config 配置信息
      * @return 转账信息
      * @throws Exception 异常
      */
-    public static TransferVo transfer(TransferBo transferBo, String mchid, String serial_no, String privateKeyFilePath, String v3Key) throws Exception {
-        Map<String, Certificate> mapCertificate = getCertificate(WxPayV3Content.URL_PRE, WxPayV3Content.V3_CERTIFICATES_URL, mchid, serial_no, privateKeyFilePath, v3Key);
+    public TransferVo transfer(TransferBo transferBo, WxPayV3Config wxPayV3Config) throws Exception {
+        Map<String, Certificate> mapCertificate = getCertificate(WxPayV3Content.URL_PRE,
+                WxPayV3Content.V3_CERTIFICATES_URL,
+                wxPayV3Config.getMch_id(),
+                wxPayV3Config.getSerial_no(),
+                wxPayV3Config.getPrivate_key_path(),
+                wxPayV3Config.getKey());
         String platformSerialNo = null;
         Certificate certificate = null;
         for (Map.Entry<String, Certificate> stringCertificateEntry : mapCertificate.entrySet()) {
@@ -76,7 +109,13 @@ public class WxTransferV3Util extends Pay {
 
         }
 
-        String body = postRequest(WxPayV3Content.URL_PRE , WxPayV3Content.V3_TRANSFER_BATCHES, mchid, serial_no,platformSerialNo, privateKeyFilePath, JSONObject.toJSONString(transferBo));
+        String body = postRequest(WxPayV3Content.URL_PRE ,
+                WxPayV3Content.V3_TRANSFER_BATCHES,
+                wxPayV3Config.getMch_id(),
+                wxPayV3Config.getSerial_no(),
+                platformSerialNo,
+                wxPayV3Config.getPrivate_key_path(),
+                JSONObject.toJSONString(transferBo));
         TransferVo transferVo = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
