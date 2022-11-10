@@ -11,7 +11,7 @@
     <dependency>
         <groupId>cn.qmso</groupId>
         <artifactId>payment-spring-boot-starter</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.1</version>
     </dependency>
     
 ## 使用文档
