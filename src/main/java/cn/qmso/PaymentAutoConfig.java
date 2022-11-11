@@ -1,6 +1,7 @@
 package cn.qmso;
 
 import cn.qmso.wxPay.v2.WxPayV2;
+import cn.qmso.wxPay.v2.WxTransferV2;
 import cn.qmso.wxPay.v2.config.WxPayV2Config;
 import cn.qmso.wxPay.v3.WxPayV3;
 import cn.qmso.wxPay.v3.config.WxPayV3Config;
@@ -21,6 +22,12 @@ public class PaymentAutoConfig {
     @ConditionalOnMissingBean(WxPayV2.class)
     public WxPayV2 wxPayV2(){
         return new WxPayV2();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(WxTransferV2.class)
+    public WxTransferV2 wxTransferV2(){
+        return new WxTransferV2();
     }
 
     @Bean

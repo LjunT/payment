@@ -38,6 +38,15 @@ public class WxPayV2Content {
      */
     public static final String V2QUERY_REFUND_ORDER_URL = URL_PRE + "pay/refundquery";
 
+    /**
+     * 企业付款到零钱接口地址
+     */
+    public static final String V2TRANSFER_URL = URL_PRE + "/mmpaymkttransfers/promotion/transfers";
+
+    /**
+     * 查询企业付款到零钱接口地址
+     */
+    public static final String V2QUERY_TRANSFER_URL = URL_PRE + "/mmpaymkttransfers/gettransferinfo";
 
     /**
      * 微信支付成功字符串
