@@ -52,12 +52,9 @@ public class WxTransferV3 extends Pay {
      * @throws Exception 异常
      */
     public BatchesVo selectTransfer(BatchesBo batchesBo, String batchId, WxPayV3Config wxPayV3Config) throws Exception {
-        Object body = getRequest(WxPayV3Content.URL_PRE,
-                String.format(WxPayV3Content.V3_TRANSFER_SELECT,batchId),
+        Object body = getRequest(WxPayV3Content.URL_PRE + String.format(WxPayV3Content.V3_TRANSFER_SELECT,batchId),
                 batchesBo,
-                wxPayV3Config.getMch_id(),
-                wxPayV3Config.getSerial_no(),
-                wxPayV3Config.getPrivate_key_path());
+                wxPayV3Config);
         BatchesVo batchesVo = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -88,12 +85,7 @@ public class WxTransferV3 extends Pay {
      * @throws Exception 异常
      */
     public TransferVo transfer(TransferBo transferBo, WxPayV3Config wxPayV3Config) throws Exception {
-        Map<String, Certificate> mapCertificate = getCertificate(WxPayV3Content.URL_PRE,
-                WxPayV3Content.V3_CERTIFICATES_URL,
-                wxPayV3Config.getMch_id(),
-                wxPayV3Config.getSerial_no(),
-                wxPayV3Config.getPrivate_key_path(),
-                wxPayV3Config.getKey());
+        Map<String, Certificate> mapCertificate = getCertificate(WxPayV3Content.URL_PRE + WxPayV3Content.V3_CERTIFICATES_URL, wxPayV3Config);
         String platformSerialNo = null;
         Certificate certificate = null;
         for (Map.Entry<String, Certificate> stringCertificateEntry : mapCertificate.entrySet()) {
@@ -109,13 +101,10 @@ public class WxTransferV3 extends Pay {
 
         }
 
-        String body = postRequest(WxPayV3Content.URL_PRE ,
-                WxPayV3Content.V3_TRANSFER_BATCHES,
-                wxPayV3Config.getMch_id(),
-                wxPayV3Config.getSerial_no(),
+        String body = postRequest(WxPayV3Content.URL_PRE + WxPayV3Content.V3_TRANSFER_BATCHES,
                 platformSerialNo,
-                wxPayV3Config.getPrivate_key_path(),
-                JSONObject.toJSONString(transferBo));
+                JSONObject.toJSONString(transferBo),
+                wxPayV3Config);
         TransferVo transferVo = null;
         try {
             ObjectMapper mapper = new ObjectMapper();

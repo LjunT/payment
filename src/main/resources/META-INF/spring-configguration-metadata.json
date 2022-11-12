@@ -7,33 +7,39 @@
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v2.appid",
+      "name":"payment.wxpay.v2.appId",
       "type": "java.lang.String",
-      "description": "商户号绑定的appid",
+      "description": "商户号绑定的appId",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v2.mch_id",
+      "name":"payment.wxpay.v2.mchId",
       "type": "java.lang.String",
       "description": "商户号",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v2.sign_type",
+      "name":"payment.wxpay.v2.signType",
       "type": "java.lang.String",
       "description": "验签加密方式",
       "defaultValue": "MD5"
     },
     {
-      "name":"payment.wxpay.v2.notify_url",
+      "name":"payment.wxpay.v2.notifyUrl",
       "type": "java.lang.String",
       "description": "支付回调地址",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v2.cert_path",
+      "name":"payment.wxpay.v2.certPath",
       "type": "java.lang.String",
       "description": "API证书地址",
+      "defaultValue": ""
+    },
+    {
+      "name":"payment.wxpay.v2.publicKey",
+      "type": "java.lang.String",
+      "description": "PKCS#1格式的公钥",
       "defaultValue": ""
     },
     {
@@ -43,55 +49,55 @@
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v3.appid",
+      "name":"payment.wxpay.v3.appId",
       "type": "java.lang.String",
-      "description": "商户号绑定的appid",
+      "description": "商户号绑定的appId",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v3.mch_id",
+      "name":"payment.wxpay.v3.mchId",
       "type": "java.lang.String",
       "description": "商户号",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v3.sp_appid",
+      "name":"payment.wxpay.v3.spAppId",
       "type": "java.lang.String",
-      "description": "服务商公众号appid",
+      "description": "服务商公众号appId",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v3.sp_mchid",
+      "name":"payment.wxpay.v3.spMchId",
       "type": "java.lang.String",
       "description": "服务商商户号",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v3.sub_appid",
+      "name":"payment.wxpay.v3.subAppId",
       "type": "java.lang.String",
       "description": "子商户公众号id",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v3.sub_mchid",
+      "name":"payment.wxpay.v3.subMchId",
       "type": "java.lang.String",
       "description": "子商户商户号",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v3.notify_url",
+      "name":"payment.wxpay.v3.notifyUrl",
       "type": "java.lang.String",
       "description": "回调地址",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v3.serial_no",
+      "name":"payment.wxpay.v3.serialNo",
       "type": "java.lang.String",
       "description": "证书序列号",
       "defaultValue": ""
     },
     {
-      "name":"payment.wxpay.v3.private_key_path",
+      "name":"payment.wxpay.v3.privateKeyPath",
       "type": "java.lang.String",
       "description": "私钥位置",
       "defaultValue": ""

@@ -21,6 +21,7 @@ import cn.qmso.wxPay.v3.pojo.only.vo.initiatepayment.WxPayResult;
 import cn.qmso.wxPay.v3.pojo.only.vo.refundnotify.RefundOrderNotifyVo;
 import cn.qmso.wxPay.v3.pojo.only.vo.selectorder.SelectOrderVo;
 import cn.qmso.wxPay.v3.pojo.only.vo.selectrefund.SelectRefundVo;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -61,18 +62,15 @@ public class WxPayV3 extends Pay {
      */
     public String v3PayGet(String url, WxPayRequestBo wxPayRequestBo, WxPayV3Config wxPayV3Config) throws Exception {
         JSONObject object = JSONObject.parseObject(JSONObject.toJSONString(wxPayRequestBo));
-        object.put("appid",wxPayV3Config.getAppid());
-        object.put("mchid",wxPayV3Config.getMch_id());
+        object.put("appid",wxPayV3Config.getAppId());
+        object.put("mchid",wxPayV3Config.getMchId());
         if (StringUtils.isEmpty(wxPayRequestBo.getNotify_url())){
-            object.put("notify_url",wxPayV3Config.getNotify_url());
+            object.put("notify_url",wxPayV3Config.getNotifyUrl());
         }
-        Object body = postRequest(WxPayV3Content.URL_PRE,
-                url,
-                wxPayV3Config.getMch_id(),
-                wxPayV3Config.getSerial_no(),
+        Object body = postRequest(WxPayV3Content.URL_PRE + url,
                 null,
-                wxPayV3Config.getPrivate_key_path(),
-                JSONObject.toJSONString(object));
+                JSONObject.toJSONString(object),
+                wxPayV3Config);
         switch (url) {
             case WxPayV3Content.V3_APP_PAY_URL:
             case WxPayV3Content.V3_JSAPI_PAY_URL:
@@ -108,13 +106,13 @@ public class WxPayV3 extends Pay {
         String nonceStr = UUID.randomUUID().toString().replace("-", "");
         String packageStr = "prepay_id=" + prepayId;
         ArrayList<String> list = new ArrayList<>();
-        list.add(wxPayV3Config.getAppid());
+        list.add(wxPayV3Config.getAppId());
         list.add(time);
         list.add(nonceStr);
         list.add(packageStr);
         //加载签名
-        String packageSign = sign(buildSignMessage(list).getBytes(), wxPayV3Config.getPrivate_key_path());
-        return new WxPayResult(wxPayV3Config.getAppid(),
+        String packageSign = sign(buildSignMessage(list).getBytes(), wxPayV3Config.getPrivateKeyPath());
+        return new WxPayResult(wxPayV3Config.getAppId(),
                 time,
                 nonceStr,
                 "prepay_id=" + prepayId,
@@ -144,7 +142,7 @@ public class WxPayV3 extends Pay {
     public NotifyVo notify(HttpServletRequest request, HttpServletResponse response, WxPayV3Config wxPayV3Config) throws Exception {
         String result = readData(request);
         // 需要通过证书序列号查找对应的证书，verifyNotify 中有验证证书的序列号
-        String plainText = verifyNotify(result, wxPayV3Config.getPrivate_key_path());
+        String plainText = verifyNotify(result, wxPayV3Config.getPrivateKeyPath());
         //发送消息通知微信
         sendMessage(response, plainText);
         NotifyVo notifyVo = null;
@@ -174,25 +172,22 @@ public class WxPayV3 extends Pay {
     /**
      * 查询订单信息
      * @param wxPayV3Config 配置信息
-     * @param out_trade_no 商户订单号
+     * @param outTradeNo 商户订单号
      * @param transactionId 微信订单号
      * @return 订单支付成功之后的详细信息
      * @throws Exception
      */
-    public SelectOrderVo selectOrder(String transactionId,String out_trade_no,WxPayV3Config wxPayV3Config) throws Exception {
+    public SelectOrderVo selectOrder(String transactionId,String outTradeNo,WxPayV3Config wxPayV3Config) throws Exception {
         String url = "";
         if (transactionId != null){
             url = WxPayV3Content.V3_QUERY_TRANSACTIONS + transactionId;
         }
-        if (out_trade_no != null){
-            url = WxPayV3Content.V3_QUERY_OUT_TRADE_NO + out_trade_no;
+        if (outTradeNo != null){
+            url = WxPayV3Content.V3_QUERY_OUT_TRADE_NO + outTradeNo;
         }
-        Object body = getRequest(WxPayV3Content.URL_PRE,
-                url,
-                new SelectOrderBo(wxPayV3Config.getMch_id()),
-                wxPayV3Config.getMch_id(),
-                wxPayV3Config.getSerial_no(),
-                wxPayV3Config.getPrivate_key_path());
+        Object body = getRequest(WxPayV3Content.URL_PRE + url,
+                new SelectOrderBo(wxPayV3Config.getMchId()),
+                wxPayV3Config);
 
         SelectOrderVo selectOrderVo = null;
         try {
@@ -219,22 +214,19 @@ public class WxPayV3 extends Pay {
 
     /**
      * 关闭未支付的订单
-     * @param out_trade_no 商户订单号
+     * @param outTradeNo 商户订单号
      * @param wxPayV3Config 微信配置
      * @return 订单关闭成功，无任何返回
      * @throws Exception 异常
      */
-    public String closeOrder(String out_trade_no, WxPayV3Config wxPayV3Config) throws Exception {
+    public String closeOrder(String outTradeNo, WxPayV3Config wxPayV3Config) throws Exception {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("mchid", wxPayV3Config.getMch_id());
-        String url = String.format(WxPayV3Content.V3_CLOSE_ORDER_URL, out_trade_no);
-        Object body = postRequest(WxPayV3Content.URL_PRE,
-                url,
-                wxPayV3Config.getMch_id(),
-                wxPayV3Config.getSerial_no(),
+        jsonObject.put("mchid", wxPayV3Config.getMchId());
+        String url = String.format(WxPayV3Content.V3_CLOSE_ORDER_URL, outTradeNo);
+        Object body = postRequest(WxPayV3Content.URL_PRE + url,
                 null,
-                wxPayV3Config.getPrivate_key_path(),
-                jsonObject.toString());
+                jsonObject.toString(),
+                wxPayV3Config);
         return body.toString();
     }
 
@@ -256,13 +248,10 @@ public class WxPayV3 extends Pay {
      * @throws Exception 异常
      */
     public RefundVo refundOrder(RefundBo refundBo , WxPayV3Config wxPayV3Config) throws Exception {
-        Object body = postRequest(WxPayV3Content.URL_PRE,
-                WxPayV3Content.V3_REFUND_URL,
-                wxPayV3Config.getMch_id(),
-                wxPayV3Config.getSerial_no(),
+        Object body = postRequest(WxPayV3Content.URL_PRE + WxPayV3Content.V3_REFUND_URL,
                 null,
-                wxPayV3Config.getPrivate_key_path(),
-                JSONObject.toJSONString(refundBo));
+                JSONObject.toJSONString(refundBo),
+                wxPayV3Config);
         RefundVo refundVo = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -325,19 +314,16 @@ public class WxPayV3 extends Pay {
 
     /**
      * 查询退款订单信息
-     * @param out_refund_no 退款订单号
+     * @param outRefundNo 退款订单号
      * @param wxPayV3Config 配置信息
      * @return 查询订单退款信息的详细
      * @throws Exception
      */
-    public SelectRefundVo selectRefundOrder(String out_refund_no,WxPayV3Config wxPayV3Config) throws Exception {
-        String url = String.format(WxPayV3Content.V3_SELECT_REFUND_URL, out_refund_no);
-        Object body = getRequest(WxPayV3Content.URL_PRE,
-                url,
+    public SelectRefundVo selectRefundOrder(String outRefundNo,WxPayV3Config wxPayV3Config) throws Exception {
+        String url = String.format(WxPayV3Content.V3_SELECT_REFUND_URL, outRefundNo);
+        Object body = getRequest(WxPayV3Content.URL_PRE + url,
                 null,
-                wxPayV3Config.getMch_id(),
-                wxPayV3Config.getSerial_no(),
-                wxPayV3Config.getPrivate_key_path());
+                wxPayV3Config);
         SelectRefundVo selectRefundVo = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -368,12 +354,9 @@ public class WxPayV3 extends Pay {
      * @throws Exception
      */
     public TransactionBillVo applyTransactionBill(TradebillBo tradebillBo,WxPayV3Config wxPayV3Config) throws Exception {
-        Object body = getRequest(WxPayV3Content.URL_PRE,
-                WxPayV3Content.V3_TRADEBILL_URL,
+        Object body = getRequest(WxPayV3Content.URL_PRE + WxPayV3Content.V3_TRADEBILL_URL,
                 tradebillBo,
-                wxPayV3Config.getMch_id(),
-                wxPayV3Config.getSerial_no(),
-                wxPayV3Config.getPrivate_key_path());
+                wxPayV3Config);
         TransactionBillVo transactionBillVo = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -404,12 +387,9 @@ public class WxPayV3 extends Pay {
      * @throws Exception
      */
     public FundBillVo applyFundBill(FundflowbillBo fundflowbillBo,WxPayV3Config wxPayV3Config) throws Exception {
-        Object body = getRequest(WxPayV3Content.URL_PRE,
-                WxPayV3Content.V3_FUNDFLOWBILL_URL,
+        Object body = getRequest(WxPayV3Content.URL_PRE + WxPayV3Content.V3_FUNDFLOWBILL_URL,
                 fundflowbillBo,
-                wxPayV3Config.getMch_id(),
-                wxPayV3Config.getSerial_no(),
-                wxPayV3Config.getPrivate_key_path());
+                wxPayV3Config);
         FundBillVo fundBillVo = null;
         try {
             ObjectMapper mapper = new ObjectMapper();

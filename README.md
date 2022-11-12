@@ -13,7 +13,4 @@
         <artifactId>payment-spring-boot-starter</artifactId>
         <version>1.0.1</version>
     </dependency>
-    
-## 使用文档
-#### [微信支付v2版本使用文档](https://github.com/LjunT/payment/wiki/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98v2%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
-#### [微信支付v3版本使用文档](https://github.com/LjunT/payment/wiki/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98v3%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
+## [查看使用文档](https://github.com/LjunT/payment/wiki)    

@@ -5,6 +5,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.security.PublicKey;
+
 /**
  * @author : ljt
  * @version V1.0
@@ -24,37 +26,50 @@ public class WxPayV2Config {
     /**
      * 微信支付公众号appid
      */
-    private String appid;
+    private String appId;
 
     /**
      * 微信支付商户号
      */
-    private String mch_id;
+    private String mchId;
 
     /**
      * 加密方式
      */
-    private String sign_type = WxPayContent.SIGN_TYPE_MD5;
+    private String signType = WxPayContent.SIGN_TYPE_MD5;
 
     /**
      * 回调地址
      */
-    private String notify_url;
+    private String notifyUrl;
 
     /**
      * 证书地址
      */
-    private String cert_path;
+    private String certPath;
+
+
+    /**
+     * PKCS#1格式的公钥
+     */
+    private String publicKey;
+
+    /**
+     * PKCS#1格式的公钥
+     */
+    private PublicKey pubKey;
 
 
     @Override
     public String toString() {
         return "WxPayV2Config{" +
                 "key='" + key + '\'' +
-                ", appid='" + appid + '\'' +
-                ", mch_id='" + mch_id + '\'' +
-                ", sign_type='" + sign_type + '\'' +
-                ", notify_url='" + notify_url + '\'' +
+                ", appId='" + appId + '\'' +
+                ", mchId='" + mchId + '\'' +
+                ", signType='" + signType + '\'' +
+                ", notifyUrl='" + notifyUrl + '\'' +
+                ", certPath='" + certPath + '\'' +
+                ", publicKey='" + publicKey + '\'' +
                 '}';
     }
 }

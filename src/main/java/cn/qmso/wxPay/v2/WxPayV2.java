@@ -54,18 +54,18 @@ public class WxPayV2 extends PayV2 {
      */
     public String placeOrder(PlaceOrderBo placeOrderBo, SceneInfo sceneInfo, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(placeOrderBo);
-        map.put("appid", wxPayV2Config.getAppid());
-        map.put("mch_id", wxPayV2Config.getMch_id());
+        map.put("appid", wxPayV2Config.getAppId());
+        map.put("mch_id", wxPayV2Config.getMchId());
         map.put("nonce_str",WxPayUtil.generateNonceStr());
-        map.put("sign_type",wxPayV2Config.getSign_type());
+        map.put("sign_type",wxPayV2Config.getSignType());
         if (sceneInfo != null) {
             map.put("scene_info", JSONObject.toJSONString(sceneInfo));
         }
         if (StringUtils.isEmpty(placeOrderBo.getNotify_url())){
-            map.put("notify_url",wxPayV2Config.getNotify_url());
+            map.put("notify_url",wxPayV2Config.getNotifyUrl());
         }
-        String signedXml = generateSignedXml(map, wxPayV2Config.getKey(), wxPayV2Config.getSign_type());
-        Map<String, String> stringStringMap = notCarryCertificateRequestPost(wxPayV2Config.getMch_id(),
+        String signedXml = generateSignedXml(map, wxPayV2Config);
+        Map<String, String> stringStringMap = notCarryCertificateRequestPost(wxPayV2Config.getMchId(),
                                                                              WxPayV2Content.V2PAY_URL,
                                                                              signedXml);
         if (WxPayV2Content.SUCCESS.equals(stringStringMap.get(WxPayV2Content.RETURN_CODE))) {
@@ -107,17 +107,17 @@ public class WxPayV2 extends PayV2 {
         String time = (System.currentTimeMillis() / 1000) + "";
         String nonceStr = WxPayUtil.generateNonceStr();
         Map<String, String> map = new HashMap<>();
-        map.put("appId", wxPayV2Config.getAppid());
+        map.put("appId", wxPayV2Config.getAppId());
         map.put("nonceStr", nonceStr );
         map.put("package", "prepay_id=" + prepayId);
-        map.put("signType", wxPayV2Config.getSign_type());
+        map.put("signType", wxPayV2Config.getSignType());
         map.put("timeStamp", time);
-        String sign = generateSignature(map, wxPayV2Config.getKey(), wxPayV2Config.getSign_type());
-        return new WxPayResult(wxPayV2Config.getAppid(),
+        String sign = generateSignature(map, wxPayV2Config);
+        return new WxPayResult(wxPayV2Config.getAppId(),
                 time,
                 nonceStr,
                 "prepay_id=" + prepayId,
-                wxPayV2Config.getSign_type(),
+                wxPayV2Config.getSignType(),
                 sign);
     }
 
@@ -157,38 +157,43 @@ public class WxPayV2 extends PayV2 {
      */
     public Map<String, String> selectOrder(SelectOrderBo selectOrderBo, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(selectOrderBo);
-        map.put("appid",wxPayV2Config.getAppid());
-        map.put("mch_id",wxPayV2Config.getMch_id());
+        map.put("appid",wxPayV2Config.getAppId());
+        map.put("mch_id",wxPayV2Config.getMchId());
         map.put("nonce_str",WxPayUtil.generateNonceStr());
-        map.put("sign_type",wxPayV2Config.getSign_type());
-        String signedXml = generateSignedXml(map, wxPayV2Config.getKey(),wxPayV2Config.getSign_type());
-        return notCarryCertificateRequestPost(wxPayV2Config.getMch_id(), WxPayV2Content.V2ORDER_QUERY_URL, signedXml);
+        map.put("sign_type",wxPayV2Config.getSignType());
+        String signedXml = generateSignedXml(map, wxPayV2Config);
+        return notCarryCertificateRequestPost(wxPayV2Config.getMchId(), WxPayV2Content.V2ORDER_QUERY_URL, signedXml);
     }
 
 
     /**
      * 关闭订单
-     * @param closeOrderBo 参数实体
+     * @param outTradeNo 商户订单号
      * @return 关闭结果
      * @throws Exception 异常信息
      */
-    public Map<String, String> closeOrder(CloseOrderBo closeOrderBo) throws Exception {
-       return closeOrder(closeOrderBo,defaultWxPayV2Config);
+    public Map<String, String> closeOrder(String outTradeNo) throws Exception {
+       return closeOrder(outTradeNo,defaultWxPayV2Config);
     }
 
 
     /**
      * 关闭订单
      *
-     * @param closeOrderBo 参数实体
+     * @param outTradeNo 商户订单号
      * @param wxPayV2Config 配置信息
      * @return 微信返回信息
      * @throws Exception 异常
      */
-    public Map<String, String> closeOrder(CloseOrderBo closeOrderBo,WxPayV2Config wxPayV2Config) throws Exception {
-        Map<String, String> map = WxPayUtil.objectToMap(closeOrderBo);
-        String signedXml = generateSignedXml(map, wxPayV2Config.getKey(),wxPayV2Config.getSign_type());
-        return notCarryCertificateRequestPost(closeOrderBo.getMch_id(), WxPayV2Content.V2ORDER_CLOSE_URL, signedXml);
+    public Map<String, String> closeOrder(String outTradeNo,WxPayV2Config wxPayV2Config) throws Exception {
+        Map<String, String> map = new HashMap<>();
+        map.put("appid",wxPayV2Config.getAppId());
+        map.put("mch_id",wxPayV2Config.getMchId());
+        map.put("nonce_str",WxPayUtil.generateNonceStr());
+        map.put("sign_type",wxPayV2Config.getSignType());
+        map.put("out_trade_no",outTradeNo);
+        String signedXml = generateSignedXml(map, wxPayV2Config);
+        return notCarryCertificateRequestPost(wxPayV2Config.getMchId(), WxPayV2Content.V2ORDER_CLOSE_URL, signedXml);
     }
 
 
@@ -213,12 +218,12 @@ public class WxPayV2 extends PayV2 {
      */
     public Map<String, String> refundOrder(RefundOrderBo refundOrderBo, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(refundOrderBo);
-        map.put("appid",wxPayV2Config.getAppid());
-        map.put("mch_id",wxPayV2Config.getMch_id());
+        map.put("appid",wxPayV2Config.getAppId());
+        map.put("mch_id",wxPayV2Config.getMchId());
         map.put("nonce_str",WxPayUtil.generateNonceStr());
-        map.put("sign_type",wxPayV2Config.getSign_type());
-        String signedXml = generateSignedXml(map, wxPayV2Config.getKey(),wxPayV2Config.getSign_type());
-        return carryCertificateRequestPost(wxPayV2Config.getMch_id(), wxPayV2Config.getCert_path(),WxPayV2Content.V2ORDER_REFUND_URL, signedXml);
+        map.put("sign_type",wxPayV2Config.getSignType());
+        String signedXml = generateSignedXml(map, wxPayV2Config);
+        return carryCertificateRequestPost(wxPayV2Config,WxPayV2Content.V2ORDER_REFUND_URL, signedXml);
     }
 
     /**
@@ -241,8 +246,12 @@ public class WxPayV2 extends PayV2 {
      */
     public Map<String, String> selectRefundOrder(SelectRefundOrderBo selectRefundOrderBo, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(selectRefundOrderBo);
-        String signedXml = generateSignedXml(map, wxPayV2Config.getKey(),wxPayV2Config.getSign_type());
-        return notCarryCertificateRequestPost(selectRefundOrderBo.getMch_id(), WxPayV2Content.V2QUERY_REFUND_ORDER_URL, signedXml);
+        map.put("appid",wxPayV2Config.getAppId());
+        map.put("mch_id",wxPayV2Config.getMchId());
+        map.put("nonce_str",WxPayUtil.generateNonceStr());
+        map.put("sign_type",wxPayV2Config.getSignType());
+        String signedXml = generateSignedXml(map, wxPayV2Config);
+        return notCarryCertificateRequestPost(wxPayV2Config.getMchId(), WxPayV2Content.V2QUERY_REFUND_ORDER_URL, signedXml);
     }
 
 }

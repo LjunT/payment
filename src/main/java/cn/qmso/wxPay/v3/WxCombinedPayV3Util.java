@@ -1,6 +1,7 @@
 package cn.qmso.wxPay.v3;
 
 import cn.qmso.wxPay.base.Pay;
+import cn.qmso.wxPay.v3.config.WxPayV3Config;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,14 +28,14 @@ public class WxCombinedPayV3Util extends Pay {
      *
      * @param url                请求地址（只需传入域名之后的路由地址）
      * @param combinedPayBo      请求体 json字符串 此参数与微信官方文档一致
-     * @param mchId             商户ID
-     * @param serialNo          证书序列号
-     * @param privateKeyFilePath 私钥的路径
      * @return
      * @throws Exception
      */
-    public static String v3CombinedPayGet(String url, CombinedPayBo combinedPayBo, String mchId, String serialNo, String privateKeyFilePath) throws Exception {
-        Object body = postRequest(WxPayV3Content.URL_PRE, url, mchId, serialNo,null, privateKeyFilePath, JSONObject.toJSONString(combinedPayBo));
+    public static String v3CombinedPayGet(String url, CombinedPayBo combinedPayBo, WxPayV3Config wxPayV3Config) throws Exception {
+        Object body = postRequest(WxPayV3Content.URL_PRE + url,
+                null,
+                JSONObject.toJSONString(combinedPayBo),
+                wxPayV3Config);
         switch (url) {
             case "v3/combine-transactions/app":
             case "v3/combine-transactions/jsapi":
@@ -77,12 +78,13 @@ public class WxCombinedPayV3Util extends Pay {
     /**
      * 查询合单支付订单信息
      *
-     * @param mchid 商户ID
      * @return 订单支付成功之后的详细信息
      * @throws Exception
      */
-    public static SelectComBinedOrderVo selectOrder(String url, String mchid, String serial_no, String privateKeyFilePath) throws Exception {
-        Object body = getRequest(WxPayV3Content.URL_PRE, url,null, mchid, serial_no, privateKeyFilePath);
+    public static SelectComBinedOrderVo selectOrder(String url, WxPayV3Config wxPayV3Config) throws Exception {
+        Object body = getRequest(WxPayV3Content.URL_PRE + url,
+                null,
+                wxPayV3Config);
         SelectComBinedOrderVo selectComBinedOrderVo = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -99,14 +101,14 @@ public class WxCombinedPayV3Util extends Pay {
      * 关闭未支付的合单支付的订单
      *
      * @param url                请求域名
-     * @param mchid              商户号
-     * @param serial_no          证书序列号
-     * @param privateKeyFilePath 证书秘钥地址
      * @return 订单关闭成功，无任何返回
      * @throws Exception
      */
-    public static String closeCombinedOrder(String url, String mchid, String serial_no, String privateKeyFilePath, CloseOrderBo closeOrderBo) throws Exception {
-        Object body = postRequest(WxPayV3Content.URL_PRE, url, mchid, serial_no,null, privateKeyFilePath, JSONObject.toJSONString(closeOrderBo));
+    public static String closeCombinedOrder(String url, CloseOrderBo closeOrderBo, WxPayV3Config wxPayV3Config) throws Exception {
+        Object body = postRequest(WxPayV3Content.URL_PRE + url,
+                null,
+                JSONObject.toJSONString(closeOrderBo),
+                wxPayV3Config);
         return body.toString();
     }
 

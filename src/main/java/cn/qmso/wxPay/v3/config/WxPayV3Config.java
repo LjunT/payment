@@ -23,46 +23,46 @@ public class WxPayV3Config {
     /**
      * 服务商公众号id
      */
-    private String sp_appid;
+    private String spAppId;
 
     /**
      * 服务商商户号
      */
-    private String sp_mchid;
+    private String spMchId;
 
 
     /**
      *子商户公众号appid
      */
-    private String sub_appid;
+    private String subAppId;
 
     /**
      * 子商户商户号
      */
-    private String sub_mchid;
+    private String subMchId;
 
     /**
      * 微信支付公众号appid
      */
-    private String appid;
+    private String appId;
 
     /**
      * 微信支付商户号
      */
-    private String mch_id;
+    private String mchId;
 
     /**
      * 回调地址
      */
-    private String notify_url;
+    private String notifyUrl;
 
     /**
      * 证书序列号
      */
-    private String serial_no;
+    private String serialNo;
 
     /**
      * 私钥位置
      */
-    private String private_key_path;
+    private String privateKeyPath;
 }

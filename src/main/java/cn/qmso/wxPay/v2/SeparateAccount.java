@@ -2,6 +2,7 @@ package cn.qmso.wxPay.v2;
 
 import cn.qmso.wxPay.base.PayV2;
 import cn.qmso.wxPay.base.WxPayUtil;
+import cn.qmso.wxPay.v2.config.WxPayV2Config;
 import cn.qmso.wxPay.v2.pojo.separate.account.Receivers;
 import cn.qmso.wxPay.v2.pojo.separate.account.SeparateAccountBo;
 import cn.qmso.wxPay.v2.pojo.separate.account.add.AddSeparateAccountBo;
@@ -39,16 +40,14 @@ public class SeparateAccount extends PayV2 {
      * @param url               请求地址（单次分账，多次分账）
      * @param separateAccountBo 请求参数实体
      * @param receivers         请求参数实体集合
-     * @param key               ApiV2秘钥
-     * @param certPath          p12证书地址
      * @return 请求结果
      * @throws Exception 异常
      */
-    public static Map<String, String> separateAccount(String url, SeparateAccountBo separateAccountBo, List<Receivers> receivers, String key, String certPath) throws Exception {
+    public static Map<String, String> separateAccount(String url, SeparateAccountBo separateAccountBo, List<Receivers> receivers, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(separateAccountBo);
         map.put("receivers", JSONObject.toJSONString(receivers));
-        String signedXml = generateSignedXml(map, key, WxPayContent.SIGN_TYPE_MD5);
-        return carryCertificateRequestPost(separateAccountBo.getMch_id(), certPath, url_prex + url, signedXml);
+        String signedXml = generateSignedXml(map, wxPayV2Config);
+        return carryCertificateRequestPost(wxPayV2Config, url_prex + url, signedXml);
     }
 
     /**
@@ -61,10 +60,10 @@ public class SeparateAccount extends PayV2 {
      * @return 请求结果
      * @throws Exception 异常
      */
-    public static Map<String, String> addSeparateAccount(AddSeparateAccountBo addSeparateAccountBo, Receiver receiver, String key) throws Exception {
+    public static Map<String, String> addSeparateAccount(AddSeparateAccountBo addSeparateAccountBo, Receiver receiver, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(addSeparateAccountBo);
         map.put("receiver", JSONObject.toJSONString(receiver));
-        String signedXml = generateSignedXml(map, key,WxPayContent.SIGN_TYPE_MD5);
+        String signedXml = generateSignedXml(map,wxPayV2Config);
         Map<String, String> stringStringMap = notCarryCertificateRequestPost(addSeparateAccountBo.getMch_id(), url_prex + "pay/profitsharingaddreceiver", signedXml);
         return stringStringMap;
     }
@@ -79,10 +78,10 @@ public class SeparateAccount extends PayV2 {
      * @return 请求结果
      * @throws Exception 欧昌
      */
-    public static Map<String, String> deleteSeparateAccount(DeleteSeparateAccountBo deleteSeparateAccountBo, Receiver receiver, String key) throws Exception {
+    public static Map<String, String> deleteSeparateAccount(DeleteSeparateAccountBo deleteSeparateAccountBo, Receiver receiver, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(deleteSeparateAccountBo);
         map.put("receiver", JSONObject.toJSONString(receiver));
-        String signedXml = generateSignedXml(map, key,WxPayContent.SIGN_TYPE_MD5);
+        String signedXml = generateSignedXml(map,wxPayV2Config);
         Map<String, String> stringStringMap = notCarryCertificateRequestPost(deleteSeparateAccountBo.getMch_id(), url_prex + "pay/profitsharingremovereceiver", signedXml);
         return stringStringMap;
     }
@@ -96,9 +95,9 @@ public class SeparateAccount extends PayV2 {
      * @return 请求结果
      * @throws Exception 异常
      */
-    public static Map<String, String> selectSeparateAccount(SelectSeparateAccountBo selectSeparateAccountBo, String key) throws Exception {
+    public static Map<String, String> selectSeparateAccount(SelectSeparateAccountBo selectSeparateAccountBo, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(selectSeparateAccountBo);
-        String signedXml = generateSignedXml(map, key,WxPayContent.SIGN_TYPE_MD5);
+        String signedXml = generateSignedXml(map, wxPayV2Config);
         return notCarryCertificateRequestPost(selectSeparateAccountBo.getMch_id(), url_prex + "pay/profitsharingquery", signedXml);
     }
 
@@ -114,10 +113,10 @@ public class SeparateAccount extends PayV2 {
      * @return 请求结果
      * @throws Exception 异常
      */
-    public static Map<String, String> successSeparateAccount(SuccessSeparateAccountBo successSeparateAccountBo, String key, String certPath) throws Exception {
+    public static Map<String, String> successSeparateAccount(SuccessSeparateAccountBo successSeparateAccountBo, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(successSeparateAccountBo);
-        String signedXml = generateSignedXml(map, key,WxPayContent.SIGN_TYPE_MD5);
-        return carryCertificateRequestPost(successSeparateAccountBo.getMch_id(), certPath, url_prex + "secapi/pay/profitsharingfinish", signedXml);
+        String signedXml = generateSignedXml(map, wxPayV2Config);
+        return carryCertificateRequestPost(wxPayV2Config, url_prex + "secapi/pay/profitsharingfinish", signedXml);
     }
 
     /**
@@ -129,9 +128,9 @@ public class SeparateAccount extends PayV2 {
      * @return 请求结果
      * @throws Exception 异常
      */
-    public static Map<String, String> selectNotSeparateAccount(SelectNotSeparateAccountBo selectNotSeparateAccountBo, String key) throws Exception {
+    public static Map<String, String> selectNotSeparateAccount(SelectNotSeparateAccountBo selectNotSeparateAccountBo, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(selectNotSeparateAccountBo);
-        String signedXml = generateSignedXml(map, key,WxPayContent.SIGN_TYPE_MD5);
+        String signedXml = generateSignedXml(map, wxPayV2Config);
         return notCarryCertificateRequestPost(selectNotSeparateAccountBo.getMch_id(), url_prex + "pay/profitsharingorderamountquery", signedXml);
     }
 
@@ -151,10 +150,10 @@ public class SeparateAccount extends PayV2 {
      * @return
      * @throws Exception
      */
-    public static Map<String, String> returnSeparateAccount(ReturnSeparateAccountBo returnSeparateAccountBo, String key, String certPath) throws Exception {
+    public static Map<String, String> returnSeparateAccount(ReturnSeparateAccountBo returnSeparateAccountBo, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(returnSeparateAccountBo);
-        String signedXml = generateSignedXml(map, key,WxPayContent.SIGN_TYPE_MD5);
-        return carryCertificateRequestPost(returnSeparateAccountBo.getMch_id(), certPath, url_prex + "secapi/pay/profitsharingreturn", signedXml);
+        String signedXml = generateSignedXml(map, wxPayV2Config);
+        return carryCertificateRequestPost(wxPayV2Config, url_prex + "secapi/pay/profitsharingreturn", signedXml);
     }
 
     /**
@@ -168,9 +167,9 @@ public class SeparateAccount extends PayV2 {
      * @return
      * @throws Exception
      */
-    public static Map<String, String> selectFallBackResultSeparateAccount(SelectFallBackResultSeparateAccountBo selectFallBackResultSeparateAccountBo, String key) throws Exception {
+    public static Map<String, String> selectFallBackResultSeparateAccount(SelectFallBackResultSeparateAccountBo selectFallBackResultSeparateAccountBo, WxPayV2Config wxPayV2Config) throws Exception {
         Map<String, String> map = WxPayUtil.objectToMap(selectFallBackResultSeparateAccountBo);
-        String signedXml = generateSignedXml(map, key,WxPayContent.SIGN_TYPE_MD5);
-        return notCarryCertificateRequestPost(selectFallBackResultSeparateAccountBo.getMch_id(), url_prex + "pay/profitsharingreturnquery", signedXml);
+        String signedXml = generateSignedXml(map, wxPayV2Config);
+        return notCarryCertificateRequestPost(wxPayV2Config.getMchId(), url_prex + "pay/profitsharingreturnquery", signedXml);
     }
 }

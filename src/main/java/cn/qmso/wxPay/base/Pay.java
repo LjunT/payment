@@ -1,5 +1,7 @@
 package cn.qmso.wxPay.base;
 
+import cn.qmso.wxPay.v2.config.WxPayV2Config;
+import cn.qmso.wxPay.v3.config.WxPayV3Config;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +39,10 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -59,22 +63,20 @@ public class Pay  {
      *
      * @param method             请求方式
      * @param url                请求地址
-     * @param mercId             商户ID
-     * @param serial_no          证书序列号
-     * @param privateKeyFilePath 私钥路径
+     * @param wxPayV3Config 配置信息
      * @param body               请求体
      * @return 组装请求的数据
      * @throws Exception 异常
      */
-    protected static String getToken(String method, HttpUrl url, String mercId, String serial_no, String privateKeyFilePath, String body) throws Exception {
+    protected static String getToken(String method, HttpUrl url, String body, WxPayV3Config wxPayV3Config) throws Exception {
         String nonceStr = UUID.randomUUID().toString().replace("-", "");
         long timestamp = System.currentTimeMillis() / 1000;
         String message = buildMessage(method, url, timestamp, nonceStr, body);
-        String signature = sign(message.getBytes("UTF-8"), privateKeyFilePath);
-        return "mchid=\"" + mercId + "\","
+        String signature = sign(message.getBytes("UTF-8"), wxPayV3Config.getPrivateKeyPath());
+        return "mchid=\"" + wxPayV3Config.getMchId() + "\","
                 + "nonce_str=\"" + nonceStr + "\","
                 + "timestamp=\"" + timestamp + "\","
-                + "serial_no=\"" + serial_no + "\","
+                + "serial_no=\"" + wxPayV3Config.getSerialNo() + "\","
                 + "signature=\"" + signature + "\"";
     }
 
@@ -118,22 +120,19 @@ public class Pay  {
     /**
      * 微信获取平台证书
      *
-     * @param url_prex           请求域名
      * @param url                请求路由
-     * @param mchid              商户号
-     * @param serial_no          证书序列号
-     * @param privateKeyFilePath 证书秘钥地址
+     * @param wxPayV3Config 配置信息
      * @return
      * @throws Exception
      */
-    protected static JSONObject getCertificates(String url_prex, String url, String mchid, String serial_no, String privateKeyFilePath, String apiV3Key) throws Exception {
+    protected static JSONObject getCertificates(String url, WxPayV3Config wxPayV3Config) throws Exception {
         JSONObject body = null;
         //创建httpclient对象
         CloseableHttpClient client = HttpClients.createDefault();
         //创建post方式请求对象
-        HttpGet httpGet = new HttpGet(url_prex + url);
+        HttpGet httpGet = new HttpGet(url);
         // 处理请求头报文
-        String post = getToken("GET", HttpUrl.parse(url_prex + url), mchid, serial_no, privateKeyFilePath, "");
+        String post = getToken("GET", HttpUrl.parse(url),"",wxPayV3Config);
         //设置header信息
         //指定报文头【Content-type】、【User-Agent】
         httpGet.setHeader("Content-type", "application/json");
@@ -155,13 +154,13 @@ public class Pay  {
         return body;
     }
 
-    private static void refreshCertificate(String url_prex, String url, String mchid, String serial_no, String privateKeyFilePath,String apiV3Key) throws Exception {
-        JSONObject certificates = getCertificates(url_prex, url, mchid, serial_no, privateKeyFilePath, apiV3Key);
+    private static void refreshCertificate(String url, WxPayV3Config wxPayV3Config) throws Exception {
+        JSONObject certificates = getCertificates(url,wxPayV3Config);
         JSONArray data = certificates.getJSONArray("data");
         for (Object datum : data) {
             JSONObject jsonObject = JSONObject.parseObject(datum.toString());
             JSONObject encryptCertificate = jsonObject.getJSONObject("encrypt_certificate");
-            String publicKey = decryptResponseBody(apiV3Key, encryptCertificate.getString("associated_data"), encryptCertificate.getString("nonce"), encryptCertificate.getString("ciphertext"));
+            String publicKey = decryptResponseBody(wxPayV3Config.getKey(), encryptCertificate.getString("associated_data"), encryptCertificate.getString("nonce"), encryptCertificate.getString("ciphertext"));
             // 下面是刷新方法 refreshCertificate  的核心代码
             final CertificateFactory cf = CertificateFactory.getInstance("X509");
 
@@ -180,10 +179,10 @@ public class Pay  {
         }
     }
 
-    public static Map<String, Certificate> getCertificate(String url_prex, String url, String mchid, String serial_no, String privateKeyFilePath,String apiV3Key) throws Exception {
+    public static Map<String, Certificate> getCertificate(String url, WxPayV3Config wxPayV3Config) throws Exception {
         // 当证书容器为空 或者 响应提供的证书序列号不在容器中时  就应该刷新了
         if (CERTIFICATE_MAP.isEmpty()) {
-            refreshCertificate(url_prex, url, mchid, serial_no, privateKeyFilePath, apiV3Key);
+            refreshCertificate(url, wxPayV3Config);
         }
         // 然后调用
         return CERTIFICATE_MAP;
@@ -222,6 +221,19 @@ public class Pay  {
         } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+
+    /**
+     * 得到公钥
+     * @param publicKey  密钥字符串（经过base64编码）
+     * @throws Exception
+     */
+    public static PublicKey getPublicKey(String publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        // 通过X509编码的Key指令获得公钥对象
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(org.apache.commons.codec.binary.Base64.decodeBase64(publicKey));
+        return keyFactory.generatePublic(x509KeySpec);
     }
 
 
@@ -352,15 +364,13 @@ public class Pay  {
     /**
      * 微信支付GET请求
      *
-     * @param url_prex           请求域名
-     * @param url                请求路由
-     * @param mchid              商户号
-     * @param serial_no          证书序列号
-     * @param privateKeyFilePath 证书秘钥地址
+     * @param url 请求地址
+     * @param param 参数
+     * @param wxPayV3Config 配置
      * @return
      * @throws Exception
      */
-    protected static Object getRequest(String url_prex, String url,Object param, String mchid, String serial_no, String privateKeyFilePath) throws Exception {
+    protected static Object getRequest(String url,Object param, WxPayV3Config wxPayV3Config) throws Exception {
 
         JSONObject body = null;
         //创建httpclient对象
@@ -375,11 +385,14 @@ public class Pay  {
             }
         }
         //创建post方式请求对象
-        URIBuilder uriBuilder = new URIBuilder(url_prex + url);
+        URIBuilder uriBuilder = new URIBuilder(url);
         uriBuilder.setParameters(nvps);
         HttpGet httpGet = new HttpGet(uriBuilder.build());
         // 处理请求头报文
-        String post = getToken("GET", HttpUrl.parse(url_prex + url + "?" + httpGet.getURI().getQuery()), mchid, serial_no, privateKeyFilePath,"");
+        String post = getToken("GET",
+                HttpUrl.parse(url + "?" + httpGet.getURI().getQuery()),
+                "",
+                wxPayV3Config);
         //设置header信息
         //指定报文头【Content-type】、【User-Agent】
         httpGet.setHeader("Content-type", "application/json");
@@ -405,27 +418,27 @@ public class Pay  {
     /**
      * 微信支付POST请求
      *
-     * @param url_prex           请求域名
-     * @param url                请求路由
-     * @param mchid              商户号
-     * @param serial_no          证书序列号
-     * @param privateKeyFilePath 证书秘钥地址
+     * @param url                请求地址
+     * @param wxPayV3Config      v3配置
      * @param jsonStr            请求体Json字符串
      * @return
      * @throws Exception
      */
-    protected static String postRequest(String url_prex, String url, String mchid, String serial_no,String platformSerialNo, String privateKeyFilePath, String jsonStr) throws Exception {
+    protected static String postRequest(String url, String platformSerialNo, String jsonStr, WxPayV3Config wxPayV3Config) throws Exception {
         String body = "";
         //创建httpclient对象
         CloseableHttpClient client = HttpClients.createDefault();
         //创建post方式请求对象
-        HttpPost httpPost = new HttpPost(url_prex + url);
+        HttpPost httpPost = new HttpPost(url);
         //装填参数
         StringEntity s = new StringEntity(jsonStr, charset);
 //        s.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
         //设置参数到请求对象中
         httpPost.setEntity(s);
-        String post = getToken("POST", HttpUrl.parse(url_prex + url), mchid, serial_no, privateKeyFilePath, jsonStr);
+        String post = getToken("POST",
+                HttpUrl.parse(url),
+                jsonStr,
+                wxPayV3Config);
         //设置header信息
         //指定报文头【Content-type】、【User-Agent】
         httpPost.setHeader("Content-type", "application/json");

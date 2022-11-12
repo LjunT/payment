@@ -11,26 +11,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SelectRefundOrderBo {
     /**
-     * 微信支付分配的公众账号ID（企业号corpid即为此appId）
-     */
-    private String appid;
-    /**
-     * 微信支付分配的商户号
-     */
-    private String mch_id;
-    /**
-     * 随机字符串，不长于32位。推荐随机数生成算法
-     */
-    private String nonce_str;
-    /**
-     * 签名，详见签名生成算法
-     */
-    private String sign;
-    /**
-     * 签名类型，目前支持HMAC-SHA256和MD5，默认为MD5
-     */
-    private String sign_type;
-    /**
      * 微信订单号查询的优先级是： refund_id > out_refund_no > transaction_id > out_trade_no
      */
     private String transaction_id;

@@ -1,5 +1,7 @@
 package cn.qmso.wxPay.v2.pojo;
 
+import org.omg.CORBA.PUBLIC_MEMBER;
+
 /**
  * @author : ljt
  * @version V1.0
@@ -47,6 +49,21 @@ public class WxPayV2Content {
      * 查询企业付款到零钱接口地址
      */
     public static final String V2QUERY_TRANSFER_URL = URL_PRE + "/mmpaymkttransfers/gettransferinfo";
+
+    /**
+     * 付款到银行卡接口地址
+     */
+    public static final String TRANSFER_BANK_URL = URL_PRE + "/mmpaysptrans/pay_bank";
+
+    /**
+     * 查询付款到银行卡接口地址
+     */
+    public static final String QUERY_TRANSFER_BANK_URL = URL_PRE + "mmpaysptrans/query_bank";
+
+    /**
+     * 刷新公钥地址
+     */
+    public static final String REFRESH_PUBLIC_KEY_URL = "https://fraud.mch.weixin.qq.com/risk/getpublickey";
 
     /**
      * 微信支付成功字符串

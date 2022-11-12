@@ -1,5 +1,7 @@
 package cn.qmso.wxPay.base;
 
+import cn.qmso.wxPay.v2.config.WxPayV2Config;
+import cn.qmso.wxPay.v2.pojo.WxPayV2Content;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -22,7 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.crypto.Mac;
+import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -38,13 +40,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.security.KeyStore;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.*;
 
 
 /**
@@ -57,11 +56,10 @@ public class PayV2 {
      * 生成签名. 注意，若含有sign_type字段，必须和signType参数保持一致。
      *
      * @param data 待签名数据
-     * @param key API密钥
-     * @param signType 签名方式
+     * @param wxPayV2Config 配置信息
      * @return 签名
      */
-    public static String generateSignature(final Map<String, String> data, String key, String signType) throws Exception {
+    public static String generateSignature(final Map<String, String> data, WxPayV2Config wxPayV2Config) throws Exception {
         Set<String> keySet = data.keySet();
         String[] keyArray = keySet.toArray(new String[keySet.size()]);
         Arrays.sort(keyArray);
@@ -76,15 +74,15 @@ public class PayV2 {
                 sb.append(k).append("=").append(data.get(k).trim()).append("&");
             }
         }
-        sb.append("key=").append(key);
-        if (WxPayContent.SIGN_TYPE_MD5.equals(signType)) {
+        sb.append("key=").append(wxPayV2Config.getKey());
+        if (WxPayContent.SIGN_TYPE_MD5.equals(wxPayV2Config.getSignType())) {
             return MD5(sb.toString()).toUpperCase();
         }
-        else if (WxPayContent.SIGN_TYPE_HMAC_SHA256.equals(signType)) {
-            return HMACSHA256(sb.toString(), key);
+        else if (WxPayContent.SIGN_TYPE_HMAC_SHA256.equals(wxPayV2Config.getSignType())) {
+            return HMACSHA256(sb.toString(), wxPayV2Config.getKey());
         }
         else {
-            throw new Exception(String.format("Invalid sign_type: %s", signType));
+            throw new Exception(String.format("Invalid sign_type: %s", wxPayV2Config.getSignType()));
         }
     }
 
@@ -275,11 +273,11 @@ public class PayV2 {
      * 生成带有 sign 的 XML 格式字符串
      *
      * @param data Map类型数据
-     * @param key  API密钥
+     * @param wxPayV2Config  v2配置
      * @return 含有sign字段的XML
      */
-    protected static String generateSignedXml(final Map<String, String> data, String key,String signType) throws Exception {
-        String sign = generateSignature(data, key,signType);
+    protected static String generateSignedXml(final Map<String, String> data, WxPayV2Config wxPayV2Config) throws Exception {
+        String sign = generateSignature(data, wxPayV2Config);
         data.put("sign", sign);
         return mapToXml(data);
     }
@@ -288,19 +286,18 @@ public class PayV2 {
     /**
      * 携带证书的POST请求
      *
-     * @param mchId     商户Id
-     * @param certPath  证书地址
+     * @param wxPayV2Config 配置信息
      * @param url       请求地址
      * @param signedXml 发送的xml加密报文
      * @return 返回map格式的返回信息
      * @throws Exception
      */
-    protected static Map<String, String> carryCertificateRequestPost(String mchId, String certPath, String url, String signedXml) throws Exception {
+    protected static Map<String, String> carryCertificateRequestPost(WxPayV2Config wxPayV2Config, String url, String signedXml) throws Exception {
         // 证书
-        char[] password = mchId.toCharArray();
+        char[] password = wxPayV2Config.getMchId().toCharArray();
         InputStream certStream = null;
         try {
-            certStream = new FileInputStream(certPath);
+            certStream = new FileInputStream(wxPayV2Config.getCertPath());
         }catch (Exception e){
             log.error("证书加载失败");
         }finally {
@@ -321,7 +318,7 @@ public class PayV2 {
         BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
                 .register("https", sslConnectionSocketFactory).build(), null, null, null);
-        return request(url, connManager, mchId, signedXml);
+        return request(url, connManager, wxPayV2Config.getMchId(), signedXml);
     }
 
     /**
@@ -396,6 +393,71 @@ public class PayV2 {
         writer.println(mapToXml(map));
         writer.flush();
         writer.close();
+    }
+
+    /**
+     * 请求公钥
+     */
+    public static void refreshPublicKey(WxPayV2Config wxPayV2Config) throws Exception {
+        Map<String,String> map = new HashMap<>();
+        map.put("mch_id",wxPayV2Config.getMchId());
+        map.put("nonce_str",WxPayUtil.generateNonceStr());
+        String signedXml = generateSignedXml(map, wxPayV2Config);
+        Map<String, String> post = carryCertificateRequestPost(wxPayV2Config, WxPayV2Content.REFRESH_PUBLIC_KEY_URL, signedXml);
+        if (post.get("return_code").equals(WxPayV2Content.SUCCESS) &&
+                post.get("result_code").equals(WxPayV2Content.SUCCESS)){
+            wxPayV2Config.setPublicKey(post.get("pub_key"));
+        }else {
+            log.error("请求公钥失败：return_code：{}，return_msg：{}，result_code：{}，err_code：{}，err_code_des：{}",
+                    post.get("return_code"),post.get("return_msg"),post.get("result_code"),post.get("err_code"),post.get("err_code_des"));
+        }
+    }
+
+
+    /**
+     * 得到公钥
+     * @param wxPayV2Config  配置信息
+     * @throws Exception
+     */
+    public static void getPublicKey(WxPayV2Config wxPayV2Config) throws Exception {
+        if (StringUtils.isEmpty(wxPayV2Config.getPublicKey())){
+            refreshPublicKey(wxPayV2Config);
+        }
+        // 通过X509编码的Key指令获得公钥对象
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(wxPayV2Config.getPublicKey()));
+        PublicKey publicKey = keyFactory.generatePublic(x509KeySpec);
+        wxPayV2Config.setPubKey(publicKey);
+    }
+
+
+    /**
+     * 敏感信息加密
+     * @param message 敏感数据
+     * @param wxPayV2Config 配置信息
+     * @return
+     * @throws IllegalBlockSizeException
+     * @throws IOException
+     */
+    public static String rsaEncryptOAEP(String message, WxPayV2Config wxPayV2Config)
+            throws Exception {
+        if (wxPayV2Config.getPubKey() == null){
+            getPublicKey(wxPayV2Config);
+        }
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, wxPayV2Config.getPubKey());
+
+            byte[] data = message.getBytes(StandardCharsets.UTF_8);
+            byte[] cipherdata = cipher.doFinal(data);
+            return Base64.getEncoder().encodeToString(cipherdata);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            throw new RuntimeException("当前Java环境不支持RSA v1.5/OAEP", e);
+        } catch (InvalidKeyException e) {
+            throw new IllegalArgumentException("无效的证书", e);
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
+            throw new IllegalBlockSizeException("加密原串的长度不能超过214字节");
+        }
     }
 
 }
