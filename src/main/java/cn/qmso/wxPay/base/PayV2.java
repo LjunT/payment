@@ -1,5 +1,6 @@
 package cn.qmso.wxPay.base;
 
+import cn.qmso.wxPay.WxPayException;
 import cn.qmso.wxPay.v2.config.WxPayV2Config;
 import cn.qmso.wxPay.v2.pojo.WxPayV2Content;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
@@ -79,7 +79,7 @@ public class PayV2 {
             return MD5(sb.toString()).toUpperCase();
         }
         else if (WxPayContent.SIGN_TYPE_HMAC_SHA256.equals(wxPayV2Config.getSignType())) {
-            return HMACSHA256(sb.toString(), wxPayV2Config.getKey());
+            return WxPayUtil.hmacSha256(sb.toString(), wxPayV2Config.getKey());
         }
         else {
             throw new Exception(String.format("Invalid sign_type: %s", wxPayV2Config.getSignType()));
@@ -94,7 +94,7 @@ public class PayV2 {
      */
     public static String MD5(String data) throws Exception {
         MessageDigest md = MessageDigest.getInstance("MD5");
-        byte[] array = md.digest(data.getBytes("UTF-8"));
+        byte[] array = md.digest(data.getBytes(StandardCharsets.UTF_8));
         StringBuilder sb = new StringBuilder();
         for (byte item : array) {
             sb.append(Integer.toHexString((item & 0xFF) | 0x100).substring(1, 3));
@@ -115,7 +115,7 @@ public class PayV2 {
         Arrays.sort(keyArray);
         StringBuilder sb = new StringBuilder();
         for (String k : keyArray) {
-            if (k.equals("sign")) {
+            if ("sign".equals(k)) {
                 continue;
             }
             // 参数值为空，则不参与签名
@@ -124,36 +124,16 @@ public class PayV2 {
             }
         }
         sb.append("key=").append(key);
-        return HMACSHA256(sb.toString(), key);
+        return WxPayUtil.hmacSha256(sb.toString(), key);
     }
 
-
-    /**
-     * 生成 HMACSHA256
-     *
-     * @param data 待处理数据
-     * @param key  密钥
-     * @return 加密结果
-     * @throws Exception
-     */
-    static String HMACSHA256(String data, String key) throws Exception {
-        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secret_key = new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256");
-        sha256_HMAC.init(secret_key);
-        byte[] array = sha256_HMAC.doFinal(data.getBytes("UTF-8"));
-        StringBuilder sb = new StringBuilder();
-        for (byte item : array) {
-            sb.append(Integer.toHexString((item & 0xFF) | 0x100).substring(1, 3));
-        }
-        return sb.toString().toUpperCase();
-    }
 
     /**
      * 将Map转换为XML格式的字符串
      *
      * @param data Map类型数据
      * @return XML格式的字符串
-     * @throws Exception
+     * @throws Exception 异常
      */
     static String mapToXml(Map<String, String> data) throws Exception {
         Document document = newDocument();
@@ -175,15 +155,15 @@ public class PayV2 {
         DOMSource source = new DOMSource(document);
         transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        StringWriter writer = new StringWriter();
-        StreamResult result = new StreamResult(writer);
-        transformer.transform(source, result);
-        String output = writer.getBuffer().toString();
-        try {
-            writer.close();
-        } catch (Exception ex) {
+        try (StringWriter writer = new StringWriter()){
+            StreamResult result = new StreamResult(writer);
+            transformer.transform(source, result);
+            return writer.getBuffer().toString();
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new WxPayException("writer写出失败");
         }
-        return output;
+
     }
 
     static DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
@@ -207,11 +187,11 @@ public class PayV2 {
      * 请求
      *
      * @param url         地址
-     * @param connManager
-     * @param mchId
-     * @param signedXml
-     * @return
-     * @throws Exception
+     * @param connManager connManager
+     * @param mchId 商户号
+     * @param signedXml 有验签的xml
+     * @return 请求内容
+     * @throws Exception 异常
      */
     static Map<String, String> request(String url, BasicHttpClientConnectionManager connManager, String mchId, String signedXml) throws Exception {
         HttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connManager).build();
@@ -240,15 +220,13 @@ public class PayV2 {
     /**
      * xml转换为Map
      *
-     * @param strXML 需要转换的字符串
-     * @return
-     * @throws Exception
+     * @param strXml 需要转换的字符串
+     * @return map对象
      */
-    protected static Map<String, String> xmlToMap(String strXML) throws Exception {
-        try {
-            Map<String, String> data = new HashMap<String, String>();
+    protected static Map<String, String> xmlToMap(String strXml) {
+        try (InputStream stream = new ByteArrayInputStream(strXml.getBytes(StandardCharsets.UTF_8))){
+            Map<String, String> data = new HashMap<>(16);
             DocumentBuilder documentBuilder = newDocumentBuilder();
-            InputStream stream = new ByteArrayInputStream(strXML.getBytes("UTF-8"));
             Document doc = documentBuilder.parse(stream);
             doc.getDocumentElement().normalize();
             NodeList nodeList = doc.getDocumentElement().getChildNodes();
@@ -259,13 +237,10 @@ public class PayV2 {
                     data.put(element.getNodeName(), element.getTextContent());
                 }
             }
-            try {
-                stream.close();
-            } catch (Exception ex) {
-            }
             return data;
-        } catch (Exception ex) {
-            throw ex;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new WxPayException("xml转换map失败");
         }
     }
 
@@ -290,35 +265,29 @@ public class PayV2 {
      * @param url       请求地址
      * @param signedXml 发送的xml加密报文
      * @return 返回map格式的返回信息
-     * @throws Exception
      */
-    protected static Map<String, String> carryCertificateRequestPost(WxPayV2Config wxPayV2Config, String url, String signedXml) throws Exception {
+    protected static Map<String, String> carryCertificateRequestPost(WxPayV2Config wxPayV2Config, String url, String signedXml) {
         // 证书
         char[] password = wxPayV2Config.getMchId().toCharArray();
-        InputStream certStream = null;
-        try {
-            certStream = new FileInputStream(wxPayV2Config.getCertPath());
+        try (InputStream certStream = new FileInputStream(wxPayV2Config.getCertPath())){
+            KeyStore ks = KeyStore.getInstance("PKCS12");
+            ks.load(certStream, password);
+            // 实例化密钥库 & 初始化密钥工厂
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(ks, password);
+            // 创建 SSLContext
+            SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+            sslContext.init(kmf.getKeyManagers(), null, new SecureRandom());
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
+                    new String[]{"TLSv1"}, null, new DefaultHostnameVerifier());
+            BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(RegistryBuilder.<ConnectionSocketFactory>create()
+                    .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                    .register("https", sslConnectionSocketFactory).build(), null, null, null);
+            return request(url, connManager, wxPayV2Config.getMchId(), signedXml);
         }catch (Exception e){
-            log.error("证书加载失败");
-        }finally {
-            assert certStream != null;
-            certStream.close();
+            e.printStackTrace();
+            throw new WxPayException("证书加载失败");
         }
-
-        KeyStore ks = KeyStore.getInstance("PKCS12");
-        ks.load(certStream, password);
-        // 实例化密钥库 & 初始化密钥工厂
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(ks, password);
-        // 创建 SSLContext
-        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-        sslContext.init(kmf.getKeyManagers(), null, new SecureRandom());
-        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
-                new String[]{"TLSv1"}, null, new DefaultHostnameVerifier());
-        BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(RegistryBuilder.<ConnectionSocketFactory>create()
-                .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                .register("https", sslConnectionSocketFactory).build(), null, null, null);
-        return request(url, connManager, wxPayV2Config.getMchId(), signedXml);
     }
 
     /**
@@ -327,8 +296,8 @@ public class PayV2 {
      * @param mchId     商户ID
      * @param url       请求地址
      * @param signedXml 请求的xml报文
-     * @return
-     * @throws Exception
+     * @return 返回请求结果
+     * @throws Exception 异常
      */
     protected static Map<String, String> notCarryCertificateRequestPost(String mchId, String url, String signedXml) throws Exception {
         BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(
@@ -342,14 +311,13 @@ public class PayV2 {
     /**
      * 处理返回对象
      *
-     * @param request
-     * @return
+     * @param request 请求信息
+     * @return 处理结果
      */
     protected static String readData(HttpServletRequest request) {
-        BufferedReader br = null;
-        try {
+        try (BufferedReader br = request.getReader()){
             StringBuilder result = new StringBuilder();
-            br = request.getReader();
+
             for (String line; (line = br.readLine()) != null; ) {
                 if (result.length() > 0) {
                     result.append("\n");
@@ -358,27 +326,20 @@ public class PayV2 {
             }
             return result.toString();
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    log.error("流关闭失败");
-                }
-            }
+            e.printStackTrace();
+            throw new WxPayException("微信请求处理失败");
         }
     }
 
     /**
      * 通知微信
      *
-     * @param response
-     * @param plainText
-     * @throws Exception
+     * @param response 响应信息
+     * @param plainText 返回内容
+     * @throws Exception 异常
      */
     protected static void sendMessage(HttpServletResponse response, String plainText) throws Exception {
-        Map<String, String> map = new HashMap<String, String>(12);
+        Map<String, String> map = new HashMap<>(12);
         // 需要通过证书序列号查找对应的证书，verifyNotify 中有验证证书的序列号
         if (StringUtils.isNotEmpty(plainText)) {
             response.setStatus(200);
@@ -417,7 +378,7 @@ public class PayV2 {
     /**
      * 得到公钥
      * @param wxPayV2Config  配置信息
-     * @throws Exception
+     * @throws Exception 异常
      */
     public static void getPublicKey(WxPayV2Config wxPayV2Config) throws Exception {
         if (StringUtils.isEmpty(wxPayV2Config.getPublicKey())){
@@ -435,9 +396,9 @@ public class PayV2 {
      * 敏感信息加密
      * @param message 敏感数据
      * @param wxPayV2Config 配置信息
-     * @return
-     * @throws IllegalBlockSizeException
-     * @throws IOException
+     * @return 加密字符串
+     * @throws IllegalBlockSizeException 加密原串的长度不能超过214字节
+     * @throws IOException io异常
      */
     public static String rsaEncryptOAEP(String message, WxPayV2Config wxPayV2Config)
             throws Exception {

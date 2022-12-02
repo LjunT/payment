@@ -11,6 +11,6 @@
     <dependency>
         <groupId>cn.qmso</groupId>
         <artifactId>payment-spring-boot-starter</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
     </dependency>
-## [查看使用文档](https://github.com/LjunT/payment/wiki)    
+#### [微信支付](https://github.com/LjunT/payment/wiki/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98)    

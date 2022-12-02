@@ -95,8 +95,8 @@ public class WxTransferV3 extends Pay {
         for (TransferDetailBo transferDetailBo : transferBo.getTransfer_detail_list()) {
             if (StringUtils.isNotEmpty(transferDetailBo.getUser_name())){
                 assert certificate != null;
-                String encryptOAEP = rsaEncryptOAEP(transferDetailBo.getUser_name(), certificate.getPublicKey());
-                transferDetailBo.setUser_name(encryptOAEP);
+                String encrypt = rsaEncryptOAEP(transferDetailBo.getUser_name(), certificate.getPublicKey());
+                transferDetailBo.setUser_name(encrypt);
             }
 
         }

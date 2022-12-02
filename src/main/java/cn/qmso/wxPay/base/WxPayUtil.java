@@ -60,10 +60,10 @@ public class WxPayUtil {
         }
         sb.append("key=").append(key);
         if (WxPayContent.SIGN_TYPE_MD5.equals(signType)) {
-            return MD5(sb.toString()).toUpperCase();
+            return md5(sb.toString()).toUpperCase();
         }
         else if (WxPayContent.SIGN_TYPE_HMAC_SHA256.equals(signType)) {
-            return HMACSHA256(sb.toString(), key);
+            return hmacSha256(sb.toString(), key);
         }
         else {
             throw new Exception(String.format("Invalid sign_type: %s", signType));
@@ -77,7 +77,7 @@ public class WxPayUtil {
      * @param data 待处理数据
      * @return MD5结果
      */
-    public static String MD5(String data) throws Exception {
+    public static String md5(String data) throws Exception {
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] array = md.digest(data.getBytes(StandardCharsets.UTF_8));
         StringBuilder sb = new StringBuilder();
@@ -92,13 +92,13 @@ public class WxPayUtil {
      * @param data 待处理数据
      * @param key 密钥
      * @return 加密结果
-     * @throws Exception
+     * @throws Exception 异常
      */
-    public static String HMACSHA256(String data, String key) throws Exception {
-        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secret_key = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        sha256_HMAC.init(secret_key);
-        byte[] array = sha256_HMAC.doFinal(data.getBytes(StandardCharsets.UTF_8));
+    public static String hmacSha256(String data, String key) throws Exception {
+        Mac sha256hmac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        sha256hmac.init(secretKey);
+        byte[] array = sha256hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
         StringBuilder sb = new StringBuilder();
         for (byte item : array) {
             sb.append(Integer.toHexString((item & 0xFF) | 0x100).substring(1, 3));
@@ -135,7 +135,7 @@ public class WxPayUtil {
      * @return map
      */
     public static Map<String, Object> objectToMapObj(Object object){
-        Map<String,Object> dataMap = new HashMap<>();
+        Map<String,Object> dataMap = new HashMap<>(16);
         Class<?> clazz = object.getClass();
         for (Field field : clazz.getDeclaredFields()) {
             try {

@@ -1,6 +1,6 @@
 package cn.qmso.wxPay.base;
 
-import cn.qmso.wxPay.v2.config.WxPayV2Config;
+import cn.qmso.wxPay.WxPayException;
 import cn.qmso.wxPay.v3.config.WxPayV3Config;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -39,7 +39,6 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -72,7 +71,7 @@ public class Pay  {
         String nonceStr = UUID.randomUUID().toString().replace("-", "");
         long timestamp = System.currentTimeMillis() / 1000;
         String message = buildMessage(method, url, timestamp, nonceStr, body);
-        String signature = sign(message.getBytes("UTF-8"), wxPayV3Config.getPrivateKeyPath());
+        String signature = sign(message.getBytes(StandardCharsets.UTF_8), wxPayV3Config.getPrivateKeyPath());
         return "mchid=\"" + wxPayV3Config.getMchId() + "\","
                 + "nonce_str=\"" + nonceStr + "\","
                 + "timestamp=\"" + timestamp + "\","
@@ -86,7 +85,7 @@ public class Pay  {
      * @param message            请求体
      * @param privateKeyFilePath 私钥的路径
      * @return 生成base64位签名信息
-     * @throws Exception
+     * @throws Exception 异常
      */
     protected static String sign(byte[] message, String privateKeyFilePath) throws Exception {
         Signature sign = Signature.getInstance("SHA256withRSA");
@@ -122,8 +121,8 @@ public class Pay  {
      *
      * @param url                请求路由
      * @param wxPayV3Config 配置信息
-     * @return
-     * @throws Exception
+     * @return 请求内容
+     * @throws Exception 异常
      */
     protected static JSONObject getCertificates(String url, WxPayV3Config wxPayV3Config) throws Exception {
         JSONObject body = null;
@@ -196,7 +195,6 @@ public class Pay  {
      * @param nonce          response.body.data[i].encrypt_certificate.nonce
      * @param ciphertext     response.body.data[i].encrypt_certificate.ciphertext
      * @return the string
-     * @throws GeneralSecurityException the general security exception
      */
     public static String decryptResponseBody(String apiV3Key, String associatedData, String nonce, String ciphertext) {
         try {
@@ -227,7 +225,6 @@ public class Pay  {
     /**
      * 得到公钥
      * @param publicKey  密钥字符串（经过base64编码）
-     * @throws Exception
      */
     public static PublicKey getPublicKey(String publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
         // 通过X509编码的Key指令获得公钥对象
@@ -241,17 +238,16 @@ public class Pay  {
      * 敏感信息加密
      * @param message 敏感数据
      * @param publicKey 公钥
-     * @return
-     * @throws IllegalBlockSizeException
-     * @throws IOException
+     * @return 加密字符串
+     * @throws IllegalBlockSizeException 加载证书异常
      */
     public static String rsaEncryptOAEP(String message, PublicKey publicKey)
-            throws IllegalBlockSizeException, IOException {
+            throws IllegalBlockSizeException {
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
-            byte[] data = message.getBytes("utf-8");
+            byte[] data = message.getBytes(StandardCharsets.UTF_8);
             byte[] cipherdata = cipher.doFinal(data);
             return Base64.getEncoder().encodeToString(cipherdata);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
@@ -272,7 +268,7 @@ public class Pay  {
      * @return 私钥对象
      */
     static PrivateKey getPrivateKey(String filename) throws IOException {
-        String content = new String(Files.readAllBytes(Paths.get(filename)), "UTF-8");
+        String content = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
         try {
             String privateKey = content.replace("-----BEGIN PRIVATE KEY-----", "")
                     .replace("-----END PRIVATE KEY-----", "")
@@ -332,14 +328,12 @@ public class Pay  {
     /**
      * 处理返回对象
      *
-     * @param request
-     * @return
+     * @param request 请求信息
+     * @return 数据
      */
     protected static String readData(HttpServletRequest request) {
-        BufferedReader br = null;
-        try {
+        try (BufferedReader br = request.getReader()){
             StringBuilder result = new StringBuilder();
-            br = request.getReader();
             for (String line; (line = br.readLine()) != null; ) {
                 if (result.length() > 0) {
                     result.append("\n");
@@ -348,15 +342,8 @@ public class Pay  {
             }
             return result.toString();
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    log.error("流关闭失败");
-                }
-            }
+            e.printStackTrace();
+            throw new WxPayException("解析返回对象失败");
         }
     }
 
@@ -367,8 +354,8 @@ public class Pay  {
      * @param url 请求地址
      * @param param 参数
      * @param wxPayV3Config 配置
-     * @return
-     * @throws Exception
+     * @return 请求数据
+     * @throws Exception 异常信息
      */
     protected static Object getRequest(String url,Object param, WxPayV3Config wxPayV3Config) throws Exception {
 
@@ -421,8 +408,8 @@ public class Pay  {
      * @param url                请求地址
      * @param wxPayV3Config      v3配置
      * @param jsonStr            请求体Json字符串
-     * @return
-     * @throws Exception
+     * @return 相应信息
+     * @throws Exception 异常
      */
     protected static String postRequest(String url, String platformSerialNo, String jsonStr, WxPayV3Config wxPayV3Config) throws Exception {
         String body = "";
@@ -466,9 +453,9 @@ public class Pay  {
     /**
      * 通知微信
      *
-     * @param response
-     * @param plainText
-     * @throws Exception
+     * @param response 响应信息
+     * @param plainText 消息体
+     * @throws Exception 异常
      */
     protected static void sendMessage(HttpServletResponse response, String plainText) throws Exception {
         Map<String, String> map = new HashMap<>(12);

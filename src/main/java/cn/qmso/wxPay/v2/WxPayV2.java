@@ -6,7 +6,6 @@ import cn.qmso.wxPay.v2.pojo.WxPayV2Content;
 import cn.qmso.wxPay.v2.pojo.only.placeorder.SceneInfo;
 import cn.qmso.wxPay.v2.pojo.only.refund.select.SelectRefundOrderBo;
 import cn.qmso.wxPay.base.WxPayUtil;
-import cn.qmso.wxPay.v2.pojo.only.close.CloseOrderBo;
 import cn.qmso.wxPay.v2.pojo.only.placeorder.PlaceOrderBo;
 import cn.qmso.wxPay.v2.pojo.only.refund.RefundOrderBo;
 import cn.qmso.wxPay.v2.pojo.only.select.SelectOrderBo;

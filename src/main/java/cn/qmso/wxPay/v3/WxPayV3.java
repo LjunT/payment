@@ -21,7 +21,6 @@ import cn.qmso.wxPay.v3.pojo.only.vo.initiatepayment.WxPayResult;
 import cn.qmso.wxPay.v3.pojo.only.vo.refundnotify.RefundOrderNotifyVo;
 import cn.qmso.wxPay.v3.pojo.only.vo.selectorder.SelectOrderVo;
 import cn.qmso.wxPay.v3.pojo.only.vo.selectrefund.SelectRefundVo;
-import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -58,7 +57,7 @@ public class WxPayV3 extends Pay {
      * @param url                请求地址（只需传入域名之后的路由地址）
      * @param wxPayRequestBo     请求体 json字符串 此参数与微信官方文档一致
      * @return 订单支付的参数
-     * @throws Exception
+     * @throws Exception 异常
      */
     public String v3PayGet(String url, WxPayRequestBo wxPayRequestBo, WxPayV3Config wxPayV3Config) throws Exception {
         JSONObject object = JSONObject.parseObject(JSONObject.toJSONString(wxPayRequestBo));
@@ -123,8 +122,8 @@ public class WxPayV3 extends Pay {
     /**
      * 处理微信异步回调
      *
-     * @param request
-     * @param response
+     * @param request 请求信息
+     * @param response 响应信息
      * @return 支付的订单号
      */
     public NotifyVo notify(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -134,8 +133,8 @@ public class WxPayV3 extends Pay {
     /**
      * 处理微信异步回调
      *
-     * @param request
-     * @param response
+     * @param request 请求信息
+     * @param response 响应信息
      * @param wxPayV3Config 配置细腻
      * @return 支付的订单号
      */
@@ -163,7 +162,7 @@ public class WxPayV3 extends Pay {
      * @param out_trade_no 商户订单号
      * @param transactionId 微信订单号
      * @return 订单支付成功之后的详细信息
-     * @throws Exception
+     * @throws Exception 异常
      */
     public SelectOrderVo selectOrder(String transactionId,String out_trade_no) throws Exception {
         return selectOrder(transactionId, out_trade_no,defaultWxPayV3Config);
@@ -267,10 +266,10 @@ public class WxPayV3 extends Pay {
     /**
      * 退款的异步回调处理
      *
-     * @param request
-     * @param response
-     * @return
-     * @throws Exception
+     * @param request 请求信息
+     * @param response 响应信息
+     * @return 处理结果
+     * @throws Exception 异常
      */
     public RefundOrderNotifyVo refundOrderNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
         return refundOrderNotify(request, response,defaultWxPayV3Config);
@@ -279,11 +278,11 @@ public class WxPayV3 extends Pay {
     /**
      * 退款的异步回调处理
      *
-     * @param request
-     * @param response
+     * @param request 请求信息
+     * @param response 响应信息
      * @param wxPayV3Config 配置信息
-     * @return
-     * @throws Exception
+     * @return 处理结果
+     * @throws Exception 异常
      */
     public RefundOrderNotifyVo refundOrderNotify(HttpServletRequest request, HttpServletResponse response, WxPayV3Config wxPayV3Config) throws Exception {
         String result = readData(request);
@@ -304,12 +303,12 @@ public class WxPayV3 extends Pay {
 
     /**
      * 查询退款订单信息
-     * @param out_refund_no 退款订单号
+     * @param outRefundNo 退款订单号
      * @return 查询订单退款信息的详细
-     * @throws Exception
+     * @throws Exception 异常
      */
-    public SelectRefundVo selectRefundOrder(String out_refund_no) throws Exception {
-        return selectRefundOrder(out_refund_no,defaultWxPayV3Config);
+    public SelectRefundVo selectRefundOrder(String outRefundNo) throws Exception {
+        return selectRefundOrder(outRefundNo,defaultWxPayV3Config);
     }
 
     /**
@@ -317,7 +316,7 @@ public class WxPayV3 extends Pay {
      * @param outRefundNo 退款订单号
      * @param wxPayV3Config 配置信息
      * @return 查询订单退款信息的详细
-     * @throws Exception
+     * @throws Exception 异常
      */
     public SelectRefundVo selectRefundOrder(String outRefundNo,WxPayV3Config wxPayV3Config) throws Exception {
         String url = String.format(WxPayV3Content.V3_SELECT_REFUND_URL, outRefundNo);
@@ -340,7 +339,7 @@ public class WxPayV3 extends Pay {
      * 申请交易账单
      * @param tradebillBo 查询交易账单参数
      * @return 返回参数信息
-     * @throws Exception
+     * @throws Exception 异常
      */
     public TransactionBillVo applyTransactionBill(TradebillBo tradebillBo) throws Exception {
         return applyTransactionBill(tradebillBo,defaultWxPayV3Config);
@@ -351,7 +350,7 @@ public class WxPayV3 extends Pay {
      * @param tradebillBo 查询交易账单参数
      * @param wxPayV3Config 配置信息
      * @return 返回参数信息
-     * @throws Exception
+     * @throws Exception 异常
      */
     public TransactionBillVo applyTransactionBill(TradebillBo tradebillBo,WxPayV3Config wxPayV3Config) throws Exception {
         Object body = getRequest(WxPayV3Content.URL_PRE + WxPayV3Content.V3_TRADEBILL_URL,
@@ -373,7 +372,7 @@ public class WxPayV3 extends Pay {
      * 申请资金账单
      * @param fundflowbillBo 申请资金账单参数
      * @return 返回参数信息
-     * @throws Exception
+     * @throws Exception 异常
      */
     public FundBillVo applyFundBill(FundflowbillBo fundflowbillBo) throws Exception {
        return applyFundBill(fundflowbillBo,defaultWxPayV3Config);
@@ -384,7 +383,7 @@ public class WxPayV3 extends Pay {
      * @param fundflowbillBo 申请资金账单参数
      * @param wxPayV3Config 配置信息
      * @return 返回参数信息
-     * @throws Exception
+     * @throws Exception 异常
      */
     public FundBillVo applyFundBill(FundflowbillBo fundflowbillBo,WxPayV3Config wxPayV3Config) throws Exception {
         Object body = getRequest(WxPayV3Content.URL_PRE + WxPayV3Content.V3_FUNDFLOWBILL_URL,
