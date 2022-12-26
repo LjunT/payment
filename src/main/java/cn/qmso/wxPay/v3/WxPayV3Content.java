@@ -11,24 +11,24 @@ public class WxPayV3Content {
     /**
      * 微信请求地址前缀
      */
-    public static final String URL_PRE = "https://api.mch.weixin.qq.com/";
+    public static final String URL_PRE = "https://api.mch.weixin.qq.com";
 
     /**
      * 微信合单支付地址
      */
-    public static final String V3_COMBINE_APP_PAY_URL = "v3/combine-transactions/app";
-    public static final String V3_COMBINE_JSAPI_PAY_URL = "v3/combine-transactions/jsapi";
-    public static final String V3_COMBINE_NATIVE_PAY_URL = "v3/combine-transactions/native";
-    public static final String V3_COMBINE_H5_PAY_URL = "v3/combine-transactions/h5";
+    public static final String V3_COMBINE_APP_PAY_URL = "/v3/combine-transactions/app";
+    public static final String V3_COMBINE_JSAPI_PAY_URL = "/v3/combine-transactions/jsapi";
+    public static final String V3_COMBINE_NATIVE_PAY_URL = "/v3/combine-transactions/native";
+    public static final String V3_COMBINE_H5_PAY_URL = "/v3/combine-transactions/h5";
 
 
     /**
      * 微信支付地址
      */
-    public static final String V3_JSAPI_PAY_URL = "v3/pay/transactions/jsapi";
-    public static final String V3_APP_PAY_URL = "v3/pay/transactions/app";
-    public static final String V3_H5_PAY_URL = "v3/pay/transactions/h5";
-    public static final String V3_NATIVE_PAY_URL = "v3/pay/transactions/native";
+    public static final String V3_JSAPI_PAY_URL = "/v3/pay/transactions/jsapi";
+    public static final String V3_APP_PAY_URL = "/v3/pay/transactions/app";
+    public static final String V3_H5_PAY_URL = "/v3/pay/transactions/h5";
+    public static final String V3_NATIVE_PAY_URL = "/v3/pay/transactions/native";
 
     /**
      * 微信支付订单号查询地址
@@ -64,17 +64,17 @@ public class WxPayV3Content {
     /**
      * 获取微信平台证书地址
      */
-    public static final String V3_CERTIFICATES_URL = "v3/certificates";
+    public static final String V3_CERTIFICATES_URL = "/v3/certificates";
 
     /**
      * 商家转账到零钱地址
      */
-    public static final String V3_TRANSFER_BATCHES = "v3/transfer/batches";
+    public static final String V3_TRANSFER_BATCHES = "/v3/transfer/batches";
 
     /**
      * 商家转账到零钱订单查询地址
      */
-    public static final String V3_TRANSFER_SELECT = "v3/transfer/batches/batch-id/%s";
+    public static final String V3_TRANSFER_SELECT = "/v3/transfer/batches/batch-id/%s";
 
     /**
      * 微信支付成功字符串

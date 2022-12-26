@@ -141,7 +141,7 @@ public class WxPayV3 extends Pay {
     public NotifyVo notify(HttpServletRequest request, HttpServletResponse response, WxPayV3Config wxPayV3Config) throws Exception {
         String result = readData(request);
         // 需要通过证书序列号查找对应的证书，verifyNotify 中有验证证书的序列号
-        String plainText = verifyNotify(result, wxPayV3Config.getPrivateKeyPath());
+        String plainText = verifyNotify(result, wxPayV3Config.getKey());
         //发送消息通知微信
         sendMessage(response, plainText);
         NotifyVo notifyVo = null;
@@ -247,16 +247,13 @@ public class WxPayV3 extends Pay {
      * @throws Exception 异常
      */
     public RefundVo refundOrder(RefundBo refundBo , WxPayV3Config wxPayV3Config) throws Exception {
-        Object body = postRequest(WxPayV3Content.URL_PRE + WxPayV3Content.V3_REFUND_URL,
+        String body = postRequest(WxPayV3Content.URL_PRE + WxPayV3Content.V3_REFUND_URL,
                 null,
                 JSONObject.toJSONString(refundBo),
                 wxPayV3Config);
         RefundVo refundVo = null;
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            refundVo = mapper.readValue(body.toString(),
-                    new TypeReference<RefundVo>() {
-                    });
+            refundVo = JSONObject.parseObject(body, RefundVo.class);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
