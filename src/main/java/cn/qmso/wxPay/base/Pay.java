@@ -377,7 +377,7 @@ public class Pay  {
         HttpGet httpGet = new HttpGet(uriBuilder.build());
         // 处理请求头报文
         String post = getToken("GET",
-                HttpUrl.parse(url + "?" + httpGet.getURI().getQuery()),
+                HttpUrl.parse(url + (param != null ? "?" + httpGet.getURI().getQuery() : "")),
                 "",
                 wxPayV3Config);
         //设置header信息
